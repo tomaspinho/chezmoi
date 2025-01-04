@@ -1,0 +1,9 @@
+font-size = 15
+font-family = Hack Nerd Font Mono
+
+theme = Dark+
+
+cursor-style = block_hollow
+shell-integration-features = no-cursor
+
+background-opacity = 0.9
