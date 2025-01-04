@@ -1,0 +1,7 @@
+packages:
+  pacman:
+    - fzf
+    - ghostty
+    - git
+    - neovim
+    - ttf-hack-nerd
