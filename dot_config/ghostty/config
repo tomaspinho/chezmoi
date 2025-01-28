@@ -7,3 +7,6 @@ cursor-style = block_hollow
 shell-integration-features = no-cursor
 
 background-opacity = 0.9
+
+window-decoration = false
+
