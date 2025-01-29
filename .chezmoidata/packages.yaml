@@ -5,3 +5,18 @@ packages:
     - git
     - neovim
     - ttf-hack-nerd
+
+    # Dependencies for hyprland desktop environment
+    - hyprland
+    - hypridle
+    - hyprlock
+    - hyprpaper
+    - hyprshot
+    - swaync
+    - waybar
+    - wofi
+    - xdg-desktop-portal-hyprland
+
+    # Utilities for hyprland desktop environment to be usable
+    - network-manager-applet # Change network connections via NetworkManager
+    - pavucontrol # Control sound inputs/outputs 
