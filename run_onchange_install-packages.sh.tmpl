@@ -4,4 +4,8 @@
 if hash pacman 2>/dev/null; then
   sudo pacman -Sy --needed {{ range .packages.pacman }}{{ . | quote }} {{ end }}
 fi
+
+if hash yay 2>/dev/null; then
+  echo y | LANG=C yay -Sy --answerdiff None --answerclean None --mflags "--noconfirm" {{ range .packages.yay }}{{ . | quote }} {{ end }}
+fi
 {{ end -}}
