@@ -20,5 +20,8 @@ packages:
     - network-manager-applet # Change network connections via NetworkManager
     - pavucontrol # Control sound inputs/outputs
 
+    # qt utils for themeing qt apps under hyprland
+    - qt6ct
+
   yay:
     - hyprshot # For a decent screenshot util under hyprland
