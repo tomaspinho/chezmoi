@@ -19,6 +19,7 @@ packages:
     # Utilities for hyprland desktop environment to be usable
     - network-manager-applet # Change network connections via NetworkManager
     - pavucontrol # Control sound inputs/outputs
+    - brightnessctl # Control monitor brightness via keybinds
 
     # qt utils for themeing qt apps under hyprland
     - qt6ct
