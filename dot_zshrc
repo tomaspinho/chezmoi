@@ -116,7 +116,14 @@ export PATH="${HOME}/.local/bin/:$PATH"
 export PATH="${HOME}/.cargo/bin:$PATH"
 
 # ASDF
-. /opt/asdf-vm/asdf.sh
+# Source global installation if exists (arch)
+if test -f /opt/asdf-vm/asdf.sh ; then
+  . /opt/asdf-vm/asdf.sh
+fi
+# Source local installation if exists (ubuntu)
+if test -f ./.asdf/asdf.sh ; then
+  . ./.asdf/asdf.sh
+fi
 . ~/.asdf/plugins/golang/set-env.zsh
 
 # kubectl autocomplete
