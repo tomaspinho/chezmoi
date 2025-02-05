@@ -1,6 +1,10 @@
 {{ if eq .chezmoi.os "linux" -}}
 #!/bin/bash
 
+if hash apt 2>/dev/null; then
+  sudo apt install --yes {{ range .packages.apt }}{{ . | quote }} {{ end }}
+fi
+
 if hash pacman 2>/dev/null; then
   sudo pacman -Sy --needed {{ range .packages.pacman }}{{ . | quote }} {{ end }}
 fi
