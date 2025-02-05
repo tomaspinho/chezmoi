@@ -121,8 +121,8 @@ if test -f /opt/asdf-vm/asdf.sh ; then
   . /opt/asdf-vm/asdf.sh
 fi
 # Source local installation if exists (ubuntu)
-if test -f ./.asdf/asdf.sh ; then
-  . ./.asdf/asdf.sh
+if test -f ~/.asdf/asdf.sh ; then
+  . ~/.asdf/asdf.sh
 fi
 . ~/.asdf/plugins/golang/set-env.zsh
 
