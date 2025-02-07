@@ -1,4 +1,9 @@
 packages:
+  apt:
+    - fzf
+    - git
+    - neovim
+    - 
   pacman:
     - fzf
     - ghostty
