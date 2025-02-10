@@ -126,6 +126,11 @@ if test -f ~/.asdf/asdf.sh ; then
 fi
 . ~/.asdf/plugins/golang/set-env.zsh
 
+# New asdf installations won't have a sourceable file as they have overriding
+# to a go implementation. Instead, the user is recommended to add the shims
+# directly to their path
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+
 # kubectl autocomplete
 source <(kubectl completion zsh)
 
@@ -138,7 +143,10 @@ function ssm_runner {
   aws ssm start-session --target $INSTANCE_ID
 }
 
-alias yay='env PATH="${PATH//~\/.asdf\/shims:/}" yay'
+# The set-env script from the asdf golang plugin above interfers with
+# the system go binary, needed to build certain AUR packages. The GO*
+# environment variables unset below force the system defaults.
+alias yay="env PATH=\"$(getconf PATH)\" GOROOT= GOPATH= GOBIN= yay $@"
 
 alias vim=nvim
 
