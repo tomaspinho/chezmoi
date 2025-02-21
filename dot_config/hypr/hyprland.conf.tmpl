@@ -220,6 +220,12 @@ bind = $mainMod, mouse_up, workspace, e-1
 bindm = $mainMod, mouse:272, movewindow
 bindm = $mainMod, mouse:273, resizewindow
 
+# Move/resize windows with mainMod + arrow keys
+binde = $mainMod, right, resizeactive, 10 0
+binde = $mainMod, left, resizeactive, -10 0
+binde = $mainMod, up, resizeactive, 0 -10
+binde = $mainMod, down, resizeactive, 0 10
+
 # Start setup hyprland desktop protal for screensharing
 exec-once=dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 
