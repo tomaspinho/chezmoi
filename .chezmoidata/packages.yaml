@@ -3,7 +3,7 @@ packages:
     - fzf
     - git
     - neovim
-    - 
+
   pacman:
     - fzf
     - ghostty
