@@ -12,4 +12,11 @@ fi
 if hash yay 2>/dev/null; then
   echo y | LANG=C yay -Sy --answerdiff None --answerclean None --mflags "--noconfirm" {{ range .packages.yay }}{{ . | quote }} {{ end }}
 fi
+
+if ! hash mise 2>/dev/null; then
+  echo "Did not find mise in PATH, installing..."
+  curl https://mise.jdx.dev/mise-latest-linux-x64 > ~/.local/bin/mise
+  chmod +x ~/.local/bin/mise
+  echo "Done."
+fi
 {{ end -}}
