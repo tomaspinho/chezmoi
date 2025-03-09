@@ -115,21 +115,8 @@ export PATH="${HOME}/.local/bin/:$PATH"
 # Cargo CLIs
 export PATH="${HOME}/.cargo/bin:$PATH"
 
-# ASDF
-# Source global installation if exists (arch)
-if test -f /opt/asdf-vm/asdf.sh ; then
-  . /opt/asdf-vm/asdf.sh
-fi
-# Source local installation if exists (ubuntu)
-if test -f ~/.asdf/asdf.sh ; then
-  . ~/.asdf/asdf.sh
-fi
-. ~/.asdf/plugins/golang/set-env.zsh
-
-# New asdf installations won't have a sourceable file as they have overriding
-# to a go implementation. Instead, the user is recommended to add the shims
-# directly to their path
-export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+# Using mise now instead of asdf
+eval "$(~/.local/bin/mise activate zsh)"
 
 # kubectl autocomplete
 source <(kubectl completion zsh)
