@@ -11,3 +11,4 @@ terragrunt v0.68.4
 tflint 0.53.0
 trivy 0.54.1
 yarn 1.22.19
+zig 0.14.0
