@@ -58,7 +58,11 @@ image {
 # INPUT FIELD
 input-field {
     monitor =
+{{- if eq .chezmoi.hostname "tux" }}
     size = 600, 120
+{{- else }}
+    size = 300, 60
+{{- end }}
     outline_thickness = 4
     dots_size = 0.4
     dots_spacing = 0.2
