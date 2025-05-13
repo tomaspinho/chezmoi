@@ -13,9 +13,20 @@ if hash yay 2>/dev/null; then
   echo y | LANG=C yay -Sy --answerdiff None --answerclean None --mflags "--noconfirm" {{ range .packages.yay }}{{ . | quote }} {{ end }}
 
   echo "Updating GRUB2 defaults, please provide password..."
-  echo "GRUB_THEME=\"/boot/grub/themes/Archlinux/theme.txt\"" | sudo tee /etc/default/grub
+  echo "GRUB_THEME=\"/boot/grub/themes/Archlinux/theme.txt\"" | sudo tee -a /etc/default/grub
   sudo grub-mkconfig -o /boot/grub/grub.cfg
 fi
+
+if ! grep $USER /etc/passwd | grep zsh; then
+  echo "zsh is not the default, changing user's default shell"
+  chsh -s /usr/bin/zsh
+fi
+
+if ! [ -d ~/.oh-my-zsh ]; then
+  echo "oh-my-zsh not installed, installing..."
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended --keep-zshrc
+fi
+
 
 if ! hash mise 2>/dev/null; then
   echo "Did not find mise in PATH, installing..."

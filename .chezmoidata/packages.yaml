@@ -10,7 +10,9 @@ packages:
     - git
     - less
     - neovim
+    - tmux
     - ttf-hack-nerd
+    - zsh
 
     # Dependencies for hyprland desktop environment
     - hyprland
