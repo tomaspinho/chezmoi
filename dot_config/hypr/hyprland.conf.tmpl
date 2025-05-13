@@ -28,6 +28,7 @@ monitor=HDMI-A-1,3440x1440@60,auto,1
 # source = ~/.config/hypr/myColors.conf
 # Set programs that you use
 $terminal = ghostty
+$browser = brave
 $fileManager = nautilus
 $menu = wofi -i --show drun --allow-images -D key_expand=Tab 
 
@@ -163,6 +164,7 @@ bind = , XF86MonBrightnessDown, exec, brightnessctl set 5%-
 
 # Example binds, see https://wiki.hyprland.org/Configuring/Binds/ for more
 bind = $mainMod, return, exec, $terminal
+bind = $mainMod, b, exec, $browser
 bind = $mainMod, C, killactive, 
 bind = $mainMod, M, exit, 
 bind = $mainMod, V, togglefloating, 
