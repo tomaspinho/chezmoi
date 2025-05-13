@@ -10,7 +10,7 @@ if hash pacman 2>/dev/null; then
 fi
 
 if hash yay 2>/dev/null; then
-  echo y | LANG=C yay -Sy --answerdiff None --answerclean None --mflags "--noconfirm" {{ range .packages.yay }}{{ . | quote }} {{ end }}
+  echo y | LANG=C yay -Sy --needed --answerdiff None --answerclean None --mflags "--noconfirm" {{ range .packages.yay }}{{ . | quote }} {{ end }}
 
   if ! grep "themes/Archlinux" /etc/default/grub; then
     echo "Updating GRUB2 defaults, please provide password..."
