@@ -11,6 +11,10 @@ fi
 
 if hash yay 2>/dev/null; then
   echo y | LANG=C yay -Sy --answerdiff None --answerclean None --mflags "--noconfirm" {{ range .packages.yay }}{{ . | quote }} {{ end }}
+
+  echo "Updating GRUB2 defaults, please provide password..."
+  echo "GRUB_THEME=\"/boot/grub/themes/Archlinux/theme.txt\"" | sudo tee /etc/default/grub
+  sudo grub-mkconfig -o /boot/grub/grub.cfg
 fi
 
 if ! hash mise 2>/dev/null; then

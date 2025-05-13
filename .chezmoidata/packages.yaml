@@ -33,3 +33,4 @@ packages:
 
   yay:
     - hyprshot # For a decent screenshot util under hyprland
+    - grub2-theme-archlinux # For a decent grub2 theme
