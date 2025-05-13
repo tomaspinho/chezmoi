@@ -48,7 +48,7 @@ env = QT_QPA_PLATFORMTHEME,qt6ct
 # For all categories, see https://wiki.hyprland.org/Configuring/Variables/
 input {
 
-{{- if eq .chezmoi.hostname "tux" }}
+{{- if (or (eq .chezmoi.hostname "tux") (eq .chezmoi.hostname "x1")) }}
     kb_layout = pt
 {{- else }}
     kb_layout = us
