@@ -8,6 +8,7 @@ packages:
     - fzf
     - ghostty
     - git
+    - less
     - neovim
     - ttf-hack-nerd
 
