@@ -15,6 +15,7 @@ fi
 
 if ! hash mise 2>/dev/null; then
   echo "Did not find mise in PATH, installing..."
+  mkdir -p ~/.local/bin
   curl https://mise.jdx.dev/mise-latest-linux-x64 > ~/.local/bin/mise
   chmod +x ~/.local/bin/mise
   echo "Done."
