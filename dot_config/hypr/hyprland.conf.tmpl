@@ -13,6 +13,7 @@ source=~/.config/hypr/mocha.conf
 
 exec-once = hyprctl setcursor catppuccin-mocha-dark-cursors 28
 exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+exec-once = systemctl --user start hyprpolkitagent
 
 exec-once=waybar & swaync & hyprpaper & hypridle & nm-applet & blueman-applet
 

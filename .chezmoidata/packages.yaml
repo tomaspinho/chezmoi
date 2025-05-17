@@ -19,6 +19,7 @@ packages:
     - hypridle
     - hyprlock
     - hyprpaper
+    - hyprpolkitagent
     - swaync
     - waybar
     - wofi
