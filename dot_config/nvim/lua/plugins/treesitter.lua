@@ -13,6 +13,14 @@ return {
           ["helmfile.*%.ya?ml"] = "helm",
         },
       })
+      vim.filetype.add({
+        extension = {
+          bash = "bash",
+        },
+        pattern = {
+          [".*%.sh.tmpl"] = "bash",
+        },
+      })
     end,
   },
 }
