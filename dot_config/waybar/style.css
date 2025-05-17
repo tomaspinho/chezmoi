@@ -77,11 +77,6 @@ button:hover {
 }
 
 #clock {
-    color: @maroon;
-    border-bottom: 2px solid @maroon;
-}
-
-#clock.date {
     color: @mauve;
     border-bottom: 2px solid @mauve;
 }
@@ -110,6 +105,10 @@ button:hover {
     border-bottom: 2px solid @green;
 }
 
+#backlight {
+    color: @white;
+    border-bottom: 2px solid @white;
+}
 /* If workspaces is the leftmost module, omit left margin */
 .modules-left>widget:first-child>#workspaces {
     margin-left: 0;

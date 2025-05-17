@@ -10,13 +10,19 @@
     "tray",
     "network",
     "pulseaudio",
+    "backlight",
     "battery",
     "clock",
     "custom/power"
   ],
   "clock": {
-    "format": "<span foreground='#f5c2e7'>   </span>{:%a %d %H:%M}",
+    "format": "   {:%a %d %H:%M}",
     "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+  },
+  "backlight": {
+    "device": "intel_backlight",
+    "format": "{icon}  {percent}%",
+    "format-icons": ["", ""]
   },
   "battery": {
     "states": {
