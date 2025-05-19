@@ -13,7 +13,6 @@ return {
       },
       pattern = {
         [".*%.tpl"] = "helm",
-        [".*%.ya?ml"] = "helm",
         ["helmfile.*%.ya?ml"] = "helm",
       },
     })
