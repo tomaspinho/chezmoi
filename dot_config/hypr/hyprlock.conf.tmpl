@@ -81,3 +81,11 @@ input-field {
     halign = center
     valign = center
 }
+
+{{ if eq .chezmoi.hostname "x1" -}}
+auth {
+    fingerprint {
+        enabled = true
+    }
+}
+{{- end }}
