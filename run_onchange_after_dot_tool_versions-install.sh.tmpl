@@ -1,4 +1,9 @@
 #!/bin/bash
 
 # .tool-versions hash: {{ include "dot_tool-versions" | sha256sum }}
-cd; ~/.local/bin/mise install
+cd;
+if [ -f ~/.local/bin/mise ]; then
+  ~/.local/bin/mise install
+elif [ -f /opt/homebrew/bin/mise ]; then
+  /opt/homebrew/bin/mise install
+fi
