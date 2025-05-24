@@ -116,7 +116,7 @@ export PATH="${HOME}/.local/bin/:$PATH"
 export PATH="${HOME}/.cargo/bin:$PATH"
 
 # Using mise now instead of asdf
-eval "$(~/.local/bin/mise activate zsh)"
+eval "$(mise activate zsh)"
 
 # kubectl autocomplete
 source <(kubectl completion zsh)
