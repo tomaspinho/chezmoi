@@ -1,4 +1,9 @@
+{{ if eq .chezmoi.os "linux" -}}
 font-size = 12
+{{ else }}
+font-size = 16
+{{ end -}}
+
 font-family = Hack Nerd Font Mono
 
 theme = Dark+
