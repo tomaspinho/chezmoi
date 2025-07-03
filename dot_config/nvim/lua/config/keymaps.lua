@@ -4,3 +4,5 @@
 local map = vim.keymap.set
 
 map("n", "<leader>ps", "<cmd>execute '!openscad '.expand('%:p').'&'<cr>", { desc = "Preview with OpenSCAD" })
+
+map("t", "<leader><Esc>", "<C-\\><C-n>", { silent = true })
