@@ -48,6 +48,9 @@ env = XDG_SESSION_DESKTOP,Hyprland
 # Force electron apps to use wayland
 env = ELECTRON_OZONE_PLATFORM_HINT,wayland
 
+# Force apps using SDL to use wayland
+env = SDL_VIDEODRIVER,wayland
+
 env = QT_QPA_PLATFORMTHEME,qt6ct
 
 # For all categories, see https://wiki.hyprland.org/Configuring/Variables/
