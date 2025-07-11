@@ -2,7 +2,7 @@
 
 * {
     font-family: "MesloLGS Nerd Font Mono Bold";
-{{- if (or (eq .chezmoi.hostname "x1")
+{{- if (eq .chezmoi.hostname "x1") }}
     font-size: 12px;
 {{- else }}
     font-size: 16px;
