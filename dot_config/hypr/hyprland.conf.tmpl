@@ -51,6 +51,9 @@ env = ELECTRON_OZONE_PLATFORM_HINT,wayland
 # Force apps using SDL to use wayland
 env = SDL_VIDEODRIVER,wayland
 
+# Scale Steam and other xwayland apps that use GDK
+env = GDK_SCALE,1.5
+
 env = QT_QPA_PLATFORMTHEME,qt6ct
 
 # For all categories, see https://wiki.hyprland.org/Configuring/Variables/
