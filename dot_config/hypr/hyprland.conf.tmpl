@@ -15,7 +15,8 @@ exec-once = hyprctl setcursor catppuccin-mocha-dark-cursors 28
 exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec-once = systemctl --user start hyprpolkitagent
 
-exec-once=waybar & swaync & hyprpaper & hypridle & nm-applet & blueman-applet
+exec = pkill waybar; waybar &
+exec-once=swaync & hyprpaper & hypridle & nm-applet & blueman-appletxec-once=waybar & swaync & hyprpaper & hypridle & nm-applet & blueman-applet
 
 # See https://wiki.hyprland.org/Configuring/Monitors/
 monitor=HDMI-A-1,3440x1440@60,auto,1
