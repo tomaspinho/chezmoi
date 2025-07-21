@@ -65,6 +65,7 @@
     "on-click": "pavucontrol"
   },
   "tray": {
+    "icon-size": 12,
     "spacing": 4
   },
   "custom/power": {
