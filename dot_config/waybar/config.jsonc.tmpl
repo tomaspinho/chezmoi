@@ -1,5 +1,18 @@
 {
   "position": "top",
+{{/* Start variable definitions for computing waybar width per device */}}
+{{- $gaps_out := 7 -}}
+{{- $monitor_width := 1920 -}}
+{{- $monitor_scale := 1 -}}
+{{- if (or (eq .chezmoi.hostname "tux") (eq .chezmoi.hostname "x1")) }}
+  {{ $monitor_width = 1920 }}
+  {{ $monitor_scale = 1.25 }}
+{{- else }}
+  {{ $monitor_width = 3840 }}
+  {{ $monitor_scale = 1 }}
+{{- end }}
+{{/* Here we perform the width calculation using github.com/masterminds/sprig */}}
+  "width": {{ (subf (divf $monitor_width $monitor_scale) (mul $gaps_out 2)) }},
   "modules-left": [
     "hyprland/workspaces"
   ],

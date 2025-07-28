@@ -19,7 +19,20 @@ exec = pkill waybar; waybar &
 exec-once=swaync & hyprpaper & hypridle & nm-applet & blueman-appletxec-once=waybar & swaync & hyprpaper & hypridle & nm-applet & blueman-applet
 
 # See https://wiki.hyprland.org/Configuring/Monitors/
-monitor=HDMI-A-1,3440x1440@60,auto,1
+{{- if (or (eq .chezmoi.hostname "tux") (eq .chezmoi.hostname "x1")) }}
+monitorv2 {
+  output = eDP-1
+  mode   = 1920x1200@60
+  scale  = 1.25
+}
+{{- else }}
+monitorv2 {
+  output = HDMI-A-1
+  mode   = 3440x1440@60
+  scale  = 1
+}
+{{- end }}
+
 
 # See https://wiki.hyprland.org/Configuring/Keywords/ for more
 
@@ -90,7 +103,7 @@ general {
     resize_on_border = true
 
     gaps_in = 2
-    gaps_out = 4
+    gaps_out = 6
 
     layout = dwindle
 
