@@ -18,6 +18,8 @@ exec-once = systemctl --user start hyprpolkitagent
 exec = pkill waybar; waybar &
 exec-once=swaync & hyprpaper & hypridle & nm-applet & blueman-applet
 
+exec-once=wlsunset -S 07:00 -s 21:00 -t 2500
+
 # See https://wiki.hyprland.org/Configuring/Monitors/
 {{- if (or (eq .chezmoi.hostname "tux") (eq .chezmoi.hostname "x1")) }}
 monitorv2 {
