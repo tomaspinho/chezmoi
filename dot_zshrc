@@ -102,23 +102,8 @@ export EDITOR=nvim
 alias zshconfig="$EDITOR ~/.zshrc"
 alias ohmyzsh="$EDITOR ~/.oh-my-zsh"
 
-# kubectl krew
-export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
-
-# remotectl autocomplete
-source <(remotectl completion zsh 2> /dev/null)
-compdef _remotectl remotectl
-
 # Local CLIs
 export PATH="${HOME}/.local/bin/:$PATH"
-
-# Cargo CLIs
-export PATH="${HOME}/.cargo/bin:$PATH"
-
-# kubectl autocomplete
-source <(kubectl completion zsh)
-
-export AWS_PROFILE=sts
 
 function open { for f in "$@"; do xdg-open $f; done }
 
