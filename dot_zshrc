@@ -105,6 +105,9 @@ alias ohmyzsh="$EDITOR ~/.oh-my-zsh"
 # Local CLIs
 export PATH="${HOME}/.local/bin/:$PATH"
 
+# Mise CLIs
+eval "$(mise activate zsh)"
+
 function open { for f in "$@"; do xdg-open $f; done }
 
 function ssm_runner {
