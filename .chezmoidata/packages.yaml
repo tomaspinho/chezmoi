@@ -9,7 +9,6 @@ packages:
     - ghostty
     - git
     - git-lfs
-    - jq
     - less
     - neovim
     - tmux
@@ -43,4 +42,3 @@ packages:
     - brave-bin # Browser of choice
     - grub2-theme-archlinux # For a decent grub2 theme
     - hyprshot # For a decent screenshot util under hyprland
-    - jqp-bin # TUI playground for jq
