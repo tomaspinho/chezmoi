@@ -11,6 +11,7 @@ packages:
     - git-lfs
     - less
     - neovim
+    - ripgrep
     - tmux
     - ttf-hack-nerd
     - zsh
