@@ -1,12 +1,18 @@
 -- .config/nvim/lua/plugins/treesitter.lua
 return {
   "nvim-treesitter/nvim-treesitter",
-  opts = {
-    ensure_installed = {
+  opts = function(_, opts)
+    opts.ensure_installed = {
+      "bash",
+      "css",
+      "elixir",
+      "go",
+      "gotmpl",
       "hyprlang",
-    },
-  },
-  config = function(_, _)
+      "ruby",
+      "terraform",
+    }
+
     vim.filetype.add({
       extension = {
         gotmpl = "gotmpl",
