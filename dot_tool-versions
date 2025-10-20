@@ -5,6 +5,6 @@ jqp            0.8.0
 helm           3.15.4
 k9s            0.50.2
 kubectl        1.32.2
-neovim         0.11.0
+neovim         0.11.4
 nodejs         22.15.1
 usage          2.2.2
