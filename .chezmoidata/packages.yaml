@@ -34,7 +34,7 @@ packages:
     - blueman # Change bluetooth connections
     - bluez # Bluetooth daemon required for blueman
     - bluez-utils # Bluetooth clis
-    - wlsunset # Change screen color temperature depending on time of day
+    - hyprsunset # Change screen color temperature depending on time of day
 
     # qt utils for themeing qt apps under hyprland
     - qt6ct
