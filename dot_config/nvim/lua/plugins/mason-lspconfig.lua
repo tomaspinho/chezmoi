@@ -3,7 +3,7 @@ return {
   opts = {
     ensure_installed = {
       "postgres_lsp",
-      "python-lsp-server",
+      "basedpyright",
     },
   },
   dependencies = {
