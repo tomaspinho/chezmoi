@@ -61,24 +61,28 @@ button:hover {
     background-color: #eb4d4b;
 }
 
-#pulseaudio,
-#clock,
-#battery,
-#cpu,
-#memory,
-#disk,
-#temperature,
 #backlight,
-#wireplumber,
-#tray,
-#network,
+#battery,
+#bluetooth,
+#clock,
+#cpu,
+#disk,
+#memory,
 #mode,
+#network,
+#pulseaudio,
 #scratchpad,
-#custom-power {
+#temperature,
+#tray,
+#wireplumber {
   border-right: 1px dotted @gray;
   border-color: @gray;
   padding-left: 6px;
   padding-right: 6px;
+}
+
+#bluetooth {
+    color: @blue;
 }
 
 #clock {
@@ -86,7 +90,7 @@ button:hover {
 }
 
 #pulseaudio {
-    color: @blue;
+    color: @sapphire;
 }
 
 #network {
@@ -124,3 +128,4 @@ button:hover {
   color: @red;
   font-size: 16px;
 }
+

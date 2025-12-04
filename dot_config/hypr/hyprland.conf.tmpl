@@ -16,8 +16,7 @@ exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec-once = systemctl --user start hyprpolkitagent
 
 exec = pkill waybar; waybar &
-exec-once=swaync & hyprpaper & hypridle & nm-applet & blueman-applet
-
+exec-once=swaync & hyprpaper & hypridle & nm-applet
 exec-once=hyprsunset
 
 # See https://wiki.hyprland.org/Configuring/Monitors/
@@ -179,6 +178,9 @@ device {
 # See https://wiki.hyprland.org/Configuring/Window-Rules/ for more
 windowrulev2 = suppressevent maximize, class:.* # You'll probably like this.
 layerrule = noanim, wofi
+
+# Fixes clicks on javafx apps that create ghost windows, such as Sweet Home 3D 
+windowrule = nofocus,title:win1
 
 # See https://wiki.hyprland.org/Configuring/Keywords/ for more
 $mainMod = super
