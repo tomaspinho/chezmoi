@@ -1,13 +1,13 @@
-{{- if eq .chezmoi.hostname "x1" -}}
-preload = ~/.config/hypr/wallpapers/heic2007a_1920x1200.jpg
-wallpaper = , ~/.config/hypr/wallpapers/heic2007a_1920x1200.jpg
-{{- else if eq .chezmoi.hostname "tux" -}}
-preload = ~/.config/hypr/wallpapers/heic2007a_2880x1800.jpg
-wallpaper = , ~/.config/hypr/wallpapers/heic2007a_2880x1800.jpg
-{{- else if eq .chezmoi.hostname "office" -}}
-preload = ~/.config/hypr/wallpapers/heic2007a_3440x1440.jpg
-wallpaper = , ~/.config/hypr/wallpapers/heic2007a_3440x1440.jpg
-{{- else -}}
-preload = ~/.config/hypr/wallpapers/heic2007a.jpg
-wallpaper = , ~/.config/hypr/wallpapers/heic2007a.jpg
-{{- end }}
+wallpaper {
+  monitor =
+  {{- if eq .chezmoi.hostname "x1" }}
+  path = ~/.config/hypr/wallpapers/heic2007a_1920x1200.jpg
+  {{- else if eq .chezmoi.hostname "tux" }}
+  path = ~/.config/hypr/wallpapers/heic2007a_2880x1800.jpg
+  {{- else if eq .chezmoi.hostname "office" }}
+  path = ~/.config/hypr/wallpapers/heic2007a_3440x1440.jpg
+  {{- else }}
+  path = ~/.config/hypr/wallpapers/heic2007a.jpg
+  {{- end }}
+}
+
