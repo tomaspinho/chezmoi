@@ -36,10 +36,9 @@ packages:
     - bluez-utils # Bluetooth clis
     - hyprsunset # Change screen color temperature depending on time of day
 
-    # qt utils for themeing qt apps under hyprland
-    - qt6ct
-
   yay:
     - brave-bin # Browser of choice
     - grub2-theme-archlinux # For a decent grub2 theme
     - hyprshot # For a decent screenshot util under hyprland
+    # qt utils for themeing qt apps under hyprland, patched version for kde apps
+    - qt6ct-kde
