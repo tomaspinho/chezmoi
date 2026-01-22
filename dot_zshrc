@@ -117,7 +117,12 @@ export PATH="${HOME}/.local/bin/:$PATH"
 # Mise CLIs
 eval "$(mise activate zsh)"
 
-function open { for f in "$@"; do xdg-open $f; done }
+function open {
+  for f in "$@"; do
+    # Run in a sub-shell to suppress background job monitor output
+    (xdg-open $f 2>/dev/null >/dev/null &);
+  done
+}
 
 function ssm_runner {
   INSTANCE_ID=$(aws ec2 describe-instances --filter Name=tag:Name,Values=$@ | jq -r ".Reservations[0].Instances[0].InstanceId")
