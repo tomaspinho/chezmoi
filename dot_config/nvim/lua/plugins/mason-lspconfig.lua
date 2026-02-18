@@ -2,8 +2,9 @@ return {
   "mason-org/mason-lspconfig.nvim",
   opts = {
     ensure_installed = {
-      "postgres_lsp",
       "basedpyright",
+      "postgres_lsp",
+      "templ",
     },
   },
   dependencies = {
