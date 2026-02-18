@@ -10,6 +10,7 @@ return {
       "gotmpl",
       "hyprlang",
       "ruby",
+      "templ",
       "terraform",
     }
 
@@ -30,6 +31,11 @@ return {
     vim.filetype.add({
       pattern = {
         [".*/hypr/.*%.conf.tmpl"] = "hyprlang",
+      },
+    })
+    vim.filetype.add({
+      pattern = {
+        [".*%.templ"] = "templ",
       },
     })
   end,
