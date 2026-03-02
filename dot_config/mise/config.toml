@@ -1,2 +1,2 @@
 [settings]
-idiomatic_version_file_enable_tools = ["node", "python", "ruby", "terraform", "yarn"]
+idiomatic_version_file_enable_tools = ["java", "node", "python", "ruby", "terraform", "yarn"]
