@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if pgrep -x "hyprsunset" >/dev/null; then
-  echo "{\"text\": \"󱩌\", \"tooltip\": \"Nightlight on\", \"class\": \"custom-nightlight-on\"}"
+  echo "{\"text\": \"󱩌  on\", \"tooltip\": \"Nightlight on\", \"class\": \"on\"}"
 else
-  echo "{\"text\": \"󱩍\", \"tooltip\": \"Nightlight off\", \"class\": \"custom-nightlight-off\"}"
+  echo "{\"text\": \"󱩍  off\", \"tooltip\": \"Nightlight off\", \"class\": \"off\"}"
 fi
