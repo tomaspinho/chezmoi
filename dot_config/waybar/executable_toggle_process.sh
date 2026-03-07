@@ -10,7 +10,7 @@ fi
 cmd="$1"
 
 # Find PIDs of matching processes, excluding this script itself
-pids=$(pgrep -f "$cmd" | grep -v "^$$\$" || true)
+pids=$(pgrep "$cmd" || true)
 
 if [[ -n "$pids" ]]; then
   echo "Process '$cmd' is running (PID(s): $pids). Killing..."
