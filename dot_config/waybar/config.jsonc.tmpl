@@ -25,6 +25,7 @@
     "bluetooth",
     "pulseaudio",
     "backlight",
+    "custom/nightlight",
     "battery",
     "clock",
     "custom/power"
@@ -38,6 +39,12 @@
     "format": "{icon}    {percent}%",
     "format-icons": ["", ""],
     "on-click": "~/.config/waybar/toggle_process.sh hyprsunset",
+  },
+  "custom/nightlight": {
+    "exec": "~/.config/waybar/nightlight.sh",
+    "on-click": "~/.config/waybar/toggle_process.sh hyprsunset; sleep 0.2; pkill -SIGRTMIN+8 waybar",
+    "return-type": "json",
+    "signal": 8
   },
   "battery": {
     "states": {
