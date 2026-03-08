@@ -26,17 +26,18 @@
     "pulseaudio",
     "backlight",
     "custom/nightlight",
+    "custom/idlemanager",
     "battery",
     "clock",
     "custom/power"
   ],
   "clock": {
-    "format": "    {:%a %d %H:%M}",
+    "format": " {:%a %d %H:%M}",
     "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
   },
   "backlight": {
     "device": "intel_backlight",
-    "format": "{icon}    {percent}%",
+    "format": "{icon} {percent}%",
     "format-icons": ["", ""]
   },
   "custom/nightlight": {
@@ -45,18 +46,24 @@
     "return-type": "json",
     "signal": 8
   },
+  "custom/idlemanager": {
+    "exec": "~/.config/waybar/idlemanager.sh",
+    "on-click": "~/.config/waybar/toggle_process.sh hypridle; sleep 0.2; pkill -SIGRTMIN+9 waybar",
+    "return-type": "json",
+    "signal": 9
+  },
   "battery": {
     "states": {
       "warning": 30,
       "critical": 15
     },
-    "format": "{icon}    {capacity}%",
-    "format-warning": "{icon}    {capacity}%",
-    "format-critical": "{icon}    {capacity}%",
-    "format-charging": "   {capacity}%",
-    "format-plugged": "   {capacity}%",
-    "format-alt": "{icon}  {time}",
-    "format-full": "   {capacity}%",
+    "format": "{icon} {capacity}%",
+    "format-warning": "{icon} {capacity}%",
+    "format-critical": "{icon} {capacity}%",
+    "format-charging": " {capacity}%",
+    "format-plugged": " {capacity}%",
+    "format-alt": "{icon} {time}",
+    "format-full": " {capacity}%",
     "format-icons": [
       "",
       "",
@@ -67,29 +74,29 @@
     "tooltip-format": "{time}"
   },
   "bluetooth": {
-	  "format": "  {status}",
-	  "format-disabled": "󰂲  off",
-    "format-connected": "󰂱  {num_connections} connected",
+	  "format": " on ",
+	  "format-disabled": "󰂲 off",
+    "format-connected": "󰂱 {num_connections} connected",
 	  "tooltip-format": "{controller_alias}\t{controller_address}",
 	  "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{device_enumerate}",
 	  "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
     "on-click": "blueman-manager"
   },
   "network": {
-    "format-wifi": "    {essid}",
-    "format-ethernet": "󰤭     Disconnected",
+    "format-wifi": " {essid}",
+    "format-ethernet": "󰤭 Disconnected",
     "format-linked": "{ifname} (No IP) ",
-    "format-disconnected": "    Disconnected",
+    "format-disconnected": " Disconnected",
     "tooltip-format-wifi": "Signal Strenght: {signalStrength}%"
   },
   "pulseaudio": {
-    "format": "{icon}   {volume}%",
+    "format": "{icon} {volume}%",
     "format-muted": "",
     "format-icons": {
       "default": [
         "",
         "",
-        " "
+        ""
       ]
     },
     "on-click": "pavucontrol"

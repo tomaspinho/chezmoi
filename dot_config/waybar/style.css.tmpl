@@ -1,7 +1,7 @@
 @import "mocha.css"; 
 
 * {
-    font-family: "MesloLGS Nerd Font Mono Bold";
+    font-family: "Hack Nerd Font Mono";
 {{- if (eq .chezmoi.hostname "x1") }}
     font-size: 12px;
 {{- else }}
@@ -66,6 +66,7 @@ button:hover {
 #bluetooth,
 #clock,
 #cpu,
+#custom-idlemanager,
 #custom-nightlight,
 #disk,
 #memory,
@@ -78,8 +79,8 @@ button:hover {
 #wireplumber {
   border-right: 1px dotted @gray;
   border-color: @gray;
-  padding-left: 6px;
-  padding-right: 6px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 #bluetooth {
@@ -128,6 +129,8 @@ button:hover {
   border-right: 0;
   color: @red;
   font-size: 16px;
+  padding-left: 10px;
+  padding-right: 11px;
 }
 
 #custom-nightlight.on {
@@ -136,4 +139,12 @@ button:hover {
 
 #custom-nightlight.off {
   color: @blue;
+}
+
+#custom-idlemanager.on {
+  color: @maroon;
+}
+
+#custom-idlemanager.off {
+  color: @lavender;
 }
