@@ -32,21 +32,24 @@
     "custom/power"
   ],
   "clock": {
-    "format": " {:%a %d %H:%M}",
-    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+    "format": "<big></big> {:%Y-%m-%d %H:%M}",
+    //"tooltip-format": "<tt><small>{calendar}</small></tt>",
+    "tooltip-format": "{calendar}"
   },
   "backlight": {
     "device": "intel_backlight",
-    "format": "{icon} {percent}%",
+    "format": "<big>{icon}</big> {percent}%",
     "format-icons": ["", ""]
   },
   "custom/nightlight": {
+    "format": "<big>{text}</big>",
     "exec": "~/.config/waybar/nightlight.sh",
     "on-click": "~/.config/waybar/toggle_process.sh hyprsunset; sleep 0.2; pkill -SIGRTMIN+8 waybar",
     "return-type": "json",
     "signal": 8
   },
   "custom/idlemanager": {
+    "format": "<big>{text}</big>",
     "exec": "~/.config/waybar/idlemanager.sh",
     "on-click": "~/.config/waybar/toggle_process.sh hypridle; sleep 0.2; pkill -SIGRTMIN+9 waybar",
     "return-type": "json",
@@ -57,13 +60,13 @@
       "warning": 30,
       "critical": 15
     },
-    "format": "{icon} {capacity}%",
-    "format-warning": "{icon} {capacity}%",
-    "format-critical": "{icon} {capacity}%",
-    "format-charging": " {capacity}%",
-    "format-plugged": " {capacity}%",
+    "format": "<big>{icon}</big> {capacity}%",
+    "format-warning": "<big>{icon}</big> {capacity}%",
+    "format-critical": "<big>{icon}</big> {capacity}%",
+    "format-charging": "<big></big> {capacity}%",
+    "format-plugged": "<big></big> {capacity}%",
     "format-alt": "{icon} {time}",
-    "format-full": " {capacity}%",
+    "format-full": "<big></big> {capacity}%",
     "format-icons": [
       "",
       "",
@@ -74,24 +77,24 @@
     "tooltip-format": "{time}"
   },
   "bluetooth": {
-	  "format": " on ",
-	  "format-disabled": "󰂲 off",
-    "format-connected": "󰂱 {num_connections} connected",
+	  "format": "<big></big>",
+	  "format-disabled": "<big>󰂲</big>",
+    "format-connected": "<big>󰂱</big> {num_connections} connected",
 	  "tooltip-format": "{controller_alias}\t{controller_address}",
 	  "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{device_enumerate}",
 	  "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
     "on-click": "blueman-manager"
   },
   "network": {
-    "format-wifi": " {essid}",
-    "format-ethernet": "󰤭 Disconnected",
+    "format-wifi": "<big></big> {essid}",
+    "format-ethernet": "<big>󰤭</big>",
     "format-linked": "{ifname} (No IP) ",
-    "format-disconnected": " Disconnected",
+    "format-disconnected": "<big></big> Disconnected",
     "tooltip-format-wifi": "Signal Strenght: {signalStrength}%"
   },
   "pulseaudio": {
-    "format": "{icon} {volume}%",
-    "format-muted": "",
+    "format": "<big>{icon}</big> {volume}%",
+    "format-muted": "<big></big>",
     "format-icons": {
       "default": [
         "",
@@ -106,7 +109,7 @@
     "spacing": 4
   },
   "custom/power": {
-    "format": "⏻", // This icon is provided by the Awesome-fonts collection, not sure how to paste it unfortunately
+    "format": "<big>⏻</big>", // This icon is provided by the Awesome-fonts collection, not sure how to paste it unfortunately
     "tooltip": false,
     "menu": "on-click",
     "menu-file": "~/.config/waybar/power_menu.xml",
