@@ -15,6 +15,7 @@ screenedgeEnabled=false
 
 [Script-krohnkite]
 monocleLayoutOrder=3
+screenGapBetween=4
 threeColumnLayoutOrder=1
 tileLayoutOrder=2
 
