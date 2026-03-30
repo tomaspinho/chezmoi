@@ -1,6 +1,9 @@
 [Desktops]
 Id_1=946daa9a-e59c-4c24-a845-fd76949272ba
-Number=1
+Id_2=eb991254-7cd8-4e9b-bc92-8aa57176d4b9
+Id_3=81483bb5-3aec-4077-96d9-ad4111cf01d0
+Id_4=2cd30194-29d5-4c17-9457-c67702923d71
+Number=4
 Rows=1
 
 [EdgeBarrier]
@@ -19,9 +22,21 @@ screenGapBetween=4
 threeColumnLayoutOrder=1
 tileLayoutOrder=2
 
+[Tiling][2cd30194-29d5-4c17-9457-c67702923d71][579750c0-6d7b-45eb-8076-fe4dac32e24a]
+padding=4
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][81483bb5-3aec-4077-96d9-ad4111cf01d0][579750c0-6d7b-45eb-8076-fe4dac32e24a]
+padding=4
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
 [Tiling][946daa9a-e59c-4c24-a845-fd76949272ba][579750c0-6d7b-45eb-8076-fe4dac32e24a]
 padding=6
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.32761627906976354},{"width":0.15203488372093416},{"width":0.5203488372093024}]}
+
+[Tiling][eb991254-7cd8-4e9b-bc92-8aa57176d4b9][579750c0-6d7b-45eb-8076-fe4dac32e24a]
+padding=4
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Windows]
 DelayFocusInterval=0
