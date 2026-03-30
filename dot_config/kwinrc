@@ -23,5 +23,9 @@ tileLayoutOrder=2
 padding=6
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.32761627906976354},{"width":0.15203488372093416},{"width":0.5203488372093024}]}
 
+[Windows]
+DelayFocusInterval=0
+FocusPolicy=FocusFollowsMouse
+
 [Xwayland]
 Scale=1
