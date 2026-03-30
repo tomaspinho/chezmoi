@@ -44,7 +44,8 @@
   "backlight": {
     "device": "intel_backlight",
     "format": "<big>{icon}</big> {percent}%",
-    "format-icons": ["", ""]
+    "format-icons": ["", ""],
+    "tooltip": false,
   },
   "custom/nightlight": {
     "format": "<big>{text}</big>",
@@ -119,6 +120,7 @@
     "menu": "on-click",
     "menu-file": "~/.config/waybar/power_menu.xml",
     "menu-actions": {
+      "lock": "loginctl lock-session",
       "shutdown": "shutdown",
       "reboot": "reboot",
       "suspend": "systemctl suspend",
