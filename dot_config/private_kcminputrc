@@ -1,3 +1,12 @@
 [Keyboard]
 RepeatDelay=200
 RepeatRate=50
+
+[Libinput][1739][52914][SYNA8017:00 06CB:CEB2 Mouse]
+NaturalScroll=true
+
+[Libinput][1739][52914][SYNA8017:00 06CB:CEB2 Touchpad]
+NaturalScroll=true
+
+[Libinput][2][10][TPPS/2 Elan TrackPoint]
+NaturalScroll=true
