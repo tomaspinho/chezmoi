@@ -13,7 +13,8 @@ CornerBarrier=false
 BorderActivate=9
 
 [Plugins]
-krohnkiteEnabled=true
+krohnkiteEnabled=false
+mousetilerEnabled=true
 screenedgeEnabled=false
 
 [Script-krohnkite]
@@ -21,6 +22,9 @@ monocleLayoutOrder=3
 screenGapBetween=4
 threeColumnLayoutOrder=1
 tileLayoutOrder=2
+
+[Script-mousetiler]
+autoTileNewWindows=true
 
 [Tiling][2cd30194-29d5-4c17-9457-c67702923d71][579750c0-6d7b-45eb-8076-fe4dac32e24a]
 padding=4
@@ -32,7 +36,7 @@ tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"wi
 
 [Tiling][946daa9a-e59c-4c24-a845-fd76949272ba][579750c0-6d7b-45eb-8076-fe4dac32e24a]
 padding=6
-tiles={"layoutDirection":"horizontal","tiles":[{"width":0.32761627906976354},{"width":0.15203488372093416},{"width":0.5203488372093024}]}
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.32761627906976354},{"width":0.31220930232557975},{"width":0.3601744186046567}]}
 
 [Tiling][eb991254-7cd8-4e9b-bc92-8aa57176d4b9][579750c0-6d7b-45eb-8076-fe4dac32e24a]
 padding=4

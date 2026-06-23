@@ -7,6 +7,10 @@ Switch to Last-Used Keyboard Layout=Meta+Alt+L,Meta+Alt+L,Switch to Last-Used Ke
 Switch to Next Keyboard Layout=Meta+Alt+K,Meta+Alt+K,Switch to Next Keyboard Layout
 _k_friendly_name=Keyboard Layout Switcher
 
+[io.speedofsound.SpeedOfSound]
+_k_friendly_name=Speed of Sound
+speedofsound-trigger=Meta+Z,none,Start or stop voice typing
+
 [kaccess]
 Toggle Screen Reader On and Off=Meta+Alt+S,Meta+Alt+S,Toggle Screen Reader On and Off
 _k_friendly_name=Accessibility
@@ -38,7 +42,7 @@ Activate Window Demanding Attention=Meta+Ctrl+A,Meta+Ctrl+A,Activate Window Dema
 Cycle Overview=none,none,Cycle through Overview and Grid View
 Cycle Overview Opposite=none,none,Cycle through Grid View and Overview
 Decrease Opacity=,,Decrease Opacity of Active Window by 5%
-Edit Tiles=Meta+T,Meta+T,Toggle Tiles Editor
+Edit Tiles=none,Meta+T,Toggle Tiles Editor
 Expose=Meta+F9\tCtrl+F9,Meta+F9\tCtrl+F9,Toggle Present Windows (Current desktop)
 ExposeAll=Meta+F10\tLaunch (C)\tCtrl+F10,Meta+F10\tLaunch (C)\tCtrl+F10,Toggle Present Windows (All desktops)
 ExposeClass=Meta+F7\tCtrl+F7,Meta+F7\tCtrl+F7,Toggle Present Windows (Window class)
@@ -46,9 +50,9 @@ ExposeClassCurrentDesktop=none,none,Toggle Present Windows (Window class on curr
 Grid View=Meta+G,Meta+G,Toggle Grid View
 Increase Opacity=,,Increase Opacity of Active Window by 5%
 Kill Window=Meta+Ctrl+Esc,Meta+Ctrl+Esc,Kill Window
-KrohnkiteBTreeLayout=,none,Krohnkite: BTree Layout
+KrohnkiteBTreeLayout=Meta+T,none,Krohnkite: BTree Layout
 KrohnkiteColumnsLayout=,none,Krohnkite: Columns Layout
-KrohnkiteDecrease=,none,Krohnkite: Decrease
+KrohnkiteDecrease=Meta+D,none,Krohnkite: Decrease
 KrohnkiteFloatAll=Meta+Shift+F,none,Krohnkite: Toggle Float All
 KrohnkiteFloatingLayout=,none,Krohnkite: Floating Layout
 KrohnkiteFocusDown=Meta+J,none,Krohnkite: Focus Down
@@ -76,11 +80,24 @@ KrohnkiteSpiralLayout=,none,Krohnkite: Spiral Layout
 KrohnkiteSpreadLayout=,none,Krohnkite: Spread Layout
 KrohnkiteStackedLayout=,none,Krohnkite: Stacked Layout
 KrohnkiteStairLayout=,none,Krohnkite: Stair Layout
-KrohnkiteTileLayout=,none,Krohnkite: Tile Layout
+KrohnkiteTileLayout=none,none,Krohnkite: Tile Layout
 KrohnkiteToggleFloat=Meta+F,none,Krohnkite: Toggle Float
 KrohnkiteTreeColumnLayout=,none,Krohnkite: Three Column Layout
 KrohnkitegrowWidth=Meta+Ctrl+L,none,Krohnkite: Grow Width
 KrohnkitetoggleDock=,none,Krohnkite: Toggle Dock
+Mouse Tiler: Auto Tiler - Decrease Scroll Position=Ctrl+Alt+Left,none,Mouse Tiler: Auto Tiler - Scroll To Previous Window
+Mouse Tiler: Auto Tiler - Increase Scroll Position=Ctrl+Alt+Right,none,Mouse Tiler: Auto Tiler - Scroll To Next Window
+Mouse Tiler: Change Mode=Meta+Ctrl+Space,none,Mouse Tiler: Change Mode
+Mouse Tiler: Change To Next Auto Tiler=Ctrl+Alt+C,none,Mouse Tiler: Change To Next Auto Tiler
+Mouse Tiler: Change To Previous Auto Tiler=Ctrl+Alt+X,none,Mouse Tiler: Change To Previous Auto Tiler
+Mouse Tiler: Show All/Toggle Span=Ctrl+Space,none,Mouse Tiler: Show All/Toggle Span
+Mouse Tiler: Show Config=Ctrl+.,none,Mouse Tiler: Show Config
+Mouse Tiler: Toggle Auto Tile For Active Window=Ctrl+Alt+A,none,Mouse Tiler: Toggle Auto Tile For Active Window
+Mouse Tiler: Toggle Center In Tile=Meta+Ctrl+C,none,Mouse Tiler: Toggle Center In Tile
+Mouse Tiler: Toggle Input Type=Ctrl+Alt+I,none,Mouse Tiler: Toggle Input Type
+Mouse Tiler: Toggle Move To Previous Virtual Desktop=Meta+Ctrl+V,none,Mouse Tiler: Toggle Move To Previous Virtual Desktop
+Mouse Tiler: Toggle Tiling Suggestions=Meta+Ctrl+S,none,Mouse Tiler: Toggle Tiling Suggestions
+Mouse Tiler: Toggle Visibility=,none,Mouse Tiler: Toggle Visibility
 Move Tablet to Next LogicalOutput=none,none,Move the tablet to the next output
 MoveMouseToCenter=Meta+F6,Meta+F6,Move Mouse to Center
 MoveMouseToFocus=Meta+F5,Meta+F5,Move Mouse to Focus
@@ -90,7 +107,7 @@ MoveZoomRight=none,none,Move Zoomed Area to Right
 MoveZoomUp=none,none,Move Zoomed Area Upwards
 Overview=Meta+W,Meta+W,Toggle Overview
 Setup Window Shortcut=,,Setup Window Shortcut
-Show Desktop=Meta+D,Meta+D,Peek at Desktop
+Show Desktop=none,Meta+D,Peek at Desktop
 Switch One Desktop Down=Meta+Ctrl+Down,Meta+Ctrl+Down,Switch One Desktop Down
 Switch One Desktop Up=Meta+Ctrl+Up,Meta+Ctrl+Up,Switch One Desktop Up
 Switch One Desktop to the Left=Meta+Ctrl+Left,Meta+Ctrl+Left,Switch One Desktop to the Left
@@ -305,8 +322,21 @@ _launch=Meta+B
 [services][com.mitchellh.ghostty.desktop]
 _launch=Meta+Return
 
+[services][net.local.ydotool-2.desktop]
+_launch=Ctrl+4
+
+[services][net.local.ydotool-3.desktop]
+_launch=Ctrl+3\tCtrl+1
+
+[services][net.local.ydotool.desktop]
+_launch=Ctrl+2
+
 [services][org.kde.krunner.desktop]
 _launch=Search\tAlt+F2\tMeta+Space\tAlt+Space
 
 [services][systemsettings.desktop]
 _launch=Tools
+
+[slack]
+8650AF58B19C4FEA290DA40500F9F9CC-Ctrl+Shift+Space=,Ctrl+Shift+Space,Slack shortcut: Ctrl+Shift+Space
+_k_friendly_name=Slack
