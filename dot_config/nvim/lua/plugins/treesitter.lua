@@ -31,6 +31,7 @@ return {
     vim.filetype.add({
       pattern = {
         [".*/hypr/.*%.conf.tmpl"] = "hyprlang",
+        [".*/hypr/.*%.lua.tmpl"] = "lua",
       },
     })
     vim.filetype.add({
