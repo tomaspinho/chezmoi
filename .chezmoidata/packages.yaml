@@ -22,8 +22,9 @@ packages:
     - hyprlock
     - hyprpaper
     - hyprpolkitagent
+    - hyprsunset # Change screen color temperature depending on time of day
+    - quickshell
     - swaync
-    - waybar
     - wofi
     - xdg-desktop-portal-hyprland
 
@@ -34,7 +35,6 @@ packages:
     - blueman # Change bluetooth connections
     - bluez # Bluetooth daemon required for blueman
     - bluez-utils # Bluetooth clis
-    - hyprsunset # Change screen color temperature depending on time of day
 
   yay:
     - brave-bin # Browser of choice
