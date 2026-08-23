@@ -13,8 +13,16 @@ general {
 # BACKGROUND
 background {
     monitor =
-    path = ~/.config/backgrounds/shaded.png
-    blur_passes = 2
+    {{- if eq .chezmoi.hostname "x1" }}
+    path = ~/.config/hypr/wallpapers/heic2007a_1920x1200.jpg
+    {{- else if eq .chezmoi.hostname "tux" }}
+    path = ~/.config/hypr/wallpapers/heic2007a_2880x1800.jpg
+    {{- else if eq .chezmoi.hostname "office" }}
+    path = ~/.config/hypr/wallpapers/heic2007a_3440x1440.jpg
+    {{- else }}
+    path = ~/.config/hypr/wallpapers/heic2007a.jpg
+    {{- end }}
+    blur_passes = 0
     color = $black
 }
 
