@@ -31,6 +31,22 @@ Item {
         return null;
     }
 
+    // This desktop has no Wi-Fi to speak of and connects over ethernet
+    // instead, so the bar icon (and this popup) cover wired too. There's at
+    // most one wired device/profile, unlike the list of Wi-Fi networks above.
+    readonly property var wiredDevice: {
+        for (const d of Networking.devices.values)
+            if (d.type === DeviceType.Wired) return d;
+        return null;
+    }
+
+    readonly property var wiredNetwork: wiredDevice?.network ?? null
+    readonly property bool wiredConnected: wiredDevice?.connected ?? false
+
+    // md-ethernet. No signal-strength concept for a wire, so unlike Wi-Fi
+    // this is the one glyph for the connected state; colour carries the rest.
+    readonly property string ethernetGlyph: "󰈀"
+
     // One entry per SSID (keep the strongest AP), connected first, then saved.
     readonly property var networks: {
         if (!device) return [];
@@ -80,10 +96,19 @@ Item {
         // smaller within their cell than the other bar icons, so they read
         // as noticeably smaller at the same pixelSize.
         font { family: wifi.fontFamily; pixelSize: wifi.fontSize + 4 }
-        color: !Networking.wifiEnabled ? wifi.colMuted
-            : wifi.active ? wifi.colCyan : wifi.colYellow
-        text: !Networking.wifiEnabled ? "󰤮"
-            : wifi.active ? wifi.barsFor(wifi.active.signalStrength) : "󰤯"
+        // Wi-Fi takes precedence when both are connected - it's the link
+        // that's actually more likely to drop, so it's the one worth a
+        // glance at. Wired-but-not-connected still beats a bare "off" glyph:
+        // a plugged-in, dead cable is more useful to know about than nothing.
+        color: wifi.active ? wifi.colCyan
+            : wifi.wiredConnected ? wifi.colCyan
+            : Networking.wifiEnabled ? wifi.colYellow
+            : wifi.colMuted
+        text: wifi.active ? wifi.barsFor(wifi.active.signalStrength)
+            : wifi.wiredConnected ? wifi.ethernetGlyph
+            : Networking.wifiEnabled ? "󰤯"
+            : wifi.wiredDevice ? wifi.ethernetGlyph
+            : "󰤮"
     }
 
     MouseArea {
@@ -310,6 +335,80 @@ Item {
                     wrapMode: Text.Wrap
                     color: wifi.colYellow
                     font { family: wifi.fontFamily; pixelSize: wifi.fontSize - 3 }
+                }
+
+                // Wired has at most one device/profile, so it gets a single
+                // compact row rather than a whole section like Wi-Fi's list -
+                // and it's hidden entirely on machines with no ethernet port.
+                Rectangle {
+                    width: parent.width
+                    height: 1
+                    visible: wifi.wiredDevice !== null
+                    color: wifi.colMuted
+                }
+
+                Item {
+                    width: parent.width
+                    height: 24
+                    visible: wifi.wiredDevice !== null
+
+                    Text {
+                        anchors { left: parent.left; right: ethState.left; rightMargin: 6; verticalCenter: parent.verticalCenter }
+                        elide: Text.ElideRight
+                        text: wifi.ethernetGlyph + "  " + (wifi.wiredNetwork?.name ?? wifi.wiredDevice?.name ?? "Ethernet")
+                        color: wifi.wiredConnected ? wifi.colCyan : wifi.colFg
+                        font { family: wifi.fontFamily; pixelSize: wifi.fontSize - 2 }
+                    }
+
+                    Text {
+                        id: ethState
+                        anchors { right: parent.right; verticalCenter: parent.verticalCenter }
+                        text: wifi.wiredDevice && !wifi.wiredDevice.hasLink ? "unplugged"
+                            : wifi.wiredNetwork?.stateChanging ? "…"
+                            : wifi.wiredConnected ? "on" : "off"
+                        color: wifi.wiredConnected ? wifi.colCyan : wifi.colMuted
+                        font { family: wifi.fontFamily; pixelSize: wifi.fontSize - 2 }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            enabled: wifi.wiredNetwork !== null && wifi.wiredDevice.hasLink
+                            onClicked: wifi.wiredConnected ? wifi.wiredNetwork.disconnect() : wifi.wiredNetwork.connect()
+                        }
+                    }
+                }
+
+                Rectangle {
+                    width: parent.width
+                    height: 1
+                    color: wifi.colMuted
+                }
+
+                // Same launch-and-close pattern VolumeIndicator uses for
+                // pavucontrol: NetworkManager's own connection editor covers
+                // everything this popup doesn't (VPNs, static IPs, profiles).
+                Rectangle {
+                    width: parent.width
+                    height: 24
+                    radius: 4
+                    color: settingsHover.hovered ? Qt.lighter(wifi.colBg, 1.8) : "transparent"
+                    border { width: 1; color: wifi.colMuted }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "Network settings"
+                        color: settingsHover.hovered ? wifi.colCyan : wifi.colFg
+                        font { family: wifi.fontFamily; pixelSize: wifi.fontSize - 3 }
+                    }
+
+                    HoverHandler { id: settingsHover }
+
+                    TapHandler {
+                        onTapped: {
+                            Hyprland.dispatch('hl.dsp.exec_cmd("[float] nm-connection-editor")');
+                            popup.close();
+                        }
+                    }
                 }
             }
         }
