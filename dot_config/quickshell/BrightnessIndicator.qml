@@ -62,8 +62,8 @@ Item {
     // Snap to the 10% grid, then step. Reads back from brightnessctl after.
     function step(direction) {
         if (!ready) return;
-        const base = Math.round(percent / 10) * 10;
-        const next = Math.max(minPercent, Math.min(100, base + 10 * direction));
+        const base = percent;
+        const next = Math.max(minPercent, Math.min(100, base + direction));
         if (next === percent) return;
         percent = next; // optimistic; reconciled by the read below
         pending = next;
@@ -148,7 +148,7 @@ Item {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onWheel: wheel => br.step(wheel.angleDelta.y > 0 ? 1 : -1)
+        onWheel: wheel => br.step(wheel.angleDelta.y > 0 ? -1 : 1)
         onClicked: br.expanded = !br.expanded
     }
 
