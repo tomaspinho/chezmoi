@@ -113,18 +113,21 @@ PanelWindow {
 
             Repeater {
                 model: 4
+                RowLayout {
+                    Text {
+                        property var ws: Hyprland.workspaces.values.find(w => w.id === index + 1)
+                        property bool isActive: Hyprland.focusedWorkspace?.id === index + 1
+                        text: index + 1
+                        color: isActive ? "#0db9d7" : (ws ? "#7aa2f7" : "#444b6a")
+                        font { family: root.fontFamily; pixelSize: root.fontSize; }
 
-                Text {
-                    property var ws: Hyprland.workspaces.values.find(w => w.id === index + 1)
-                    property bool isActive: Hyprland.focusedWorkspace?.id === index + 1
-                    text: index + 1
-                    color: isActive ? "#0db9d7" : (ws ? "#7aa2f7" : "#444b6a")
-                    font { family: root.fontFamily; pixelSize: root.fontSize; bold: true }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: Hyprland.dispatch(`hl.dsp.focus({ workspace = ${index + 1} })`)
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: Hyprland.dispatch(`hl.dsp.focus({ workspace = ${index + 1} })`)
+                        }
                     }
+
+                    BarSeparator { color: root.colMuted ; visible: index + 1 < 4 }
                 }
             }
         }
