@@ -1,3 +1,13 @@
+// Starts quickshell on QApplication instead of QGuiApplication, which is what
+// makes the *real* Qt widget menus available. Tray app-indicator menus are
+// DBusMenu trees owned by the client app; QsMenuAnchor/SystemTrayItem.display()
+// hand them to the platform to render as a native QMenu, but quickshell refuses
+// ("Cannot call QsMenuAnchor.open() as quickshell was not started in
+// QApplication mode") unless this pragma is on the *root* QML file. Without it
+// the only option is re-drawing the menu tree by hand in QML, which loses
+// submenus, keyboard nav and grab handling. Must stay above the imports.
+//@ pragma UseQApplication
+
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
@@ -56,6 +66,13 @@ PanelWindow {
         }
 
         Item { Layout.fillWidth: true }
+
+        SystemTrayIndicator {
+            Layout.rightMargin: 10
+            Layout.alignment: Qt.AlignVCenter
+            colFg: root.colFg
+            fontSize: root.fontSize
+        }
 
         WifiIndicator {
             Layout.rightMargin: 10
