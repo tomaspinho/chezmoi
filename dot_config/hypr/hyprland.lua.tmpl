@@ -51,8 +51,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")
     hl.exec_cmd("systemctl --user start hyprpolkitagent")
 
-    -- Restart waybar on (re)start
-    hl.exec_cmd("pkill waybar; waybar &")
+    hl.exec_cmd("quickshell")
 
     hl.exec_cmd("swaync & hyprpaper & hypridle & nm-applet")
     hl.exec_cmd("hyprsunset")
