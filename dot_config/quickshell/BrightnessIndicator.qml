@@ -121,7 +121,7 @@ Item {
         Text {
             text: String.fromCodePoint(br.percent > 40 ? br.brightSun : br.dimSun)
             color: br.ready ? br.colYellow : br.colMuted
-            font { family: br.fontFamily; pixelSize: br.fontSize + 1 }
+            font { family: br.fontFamily; pixelSize: br.fontSize }
         }
 
         Text {

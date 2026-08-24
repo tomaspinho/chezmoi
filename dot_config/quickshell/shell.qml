@@ -19,7 +19,7 @@ PanelWindow {
     anchors.top: true
     anchors.left: true
     anchors.right: true
-    implicitHeight: 30
+    implicitHeight: root.contentHeight + root.barPadding * 2
     color: "#1a1b26"
     property color colBg: "#1a1b26"
     property color colFg: "#a9b1d6"
@@ -30,7 +30,38 @@ PanelWindow {
     property color colGreen: "#9ece6a"
     property color colRed: "#f7768e"
     property string fontFamily: "JetBrainsMono Nerd Font"
+
+    // One size for everything on the bar. Every widget takes this via its own
+    // fontSize property; nothing on the bar derives a size from it any more.
     property int fontSize: 14
+
+    // Every Text on the bar is one line, so its height is exactly this font's
+    // line box. Driving the panel off the metrics rather than a measured ink
+    // box means each item fills the row exactly and is therefore centred by
+    // construction — and it keeps following fontSize if that ever changes.
+    FontMetrics {
+        id: barFont
+        font.family: root.fontFamily
+        font.pixelSize: root.fontSize
+    }
+
+    property int contentHeight: Math.ceil(barFont.height)
+
+    // Breathing room above and below the content row. The panel is the content
+    // plus exactly this twice, so the gap top and bottom is symmetric by
+    // construction. Kept at 1 because the line box already carries the optical
+    // padding: ascent reaches above the cap height and descent below the
+    // baseline, which leaves ~4px clear either side of the glyphs.
+    property int barPadding: 1
+
+    // Single knob for the gap between status items. Nerd Font glyphs carry a
+    // couple of px of side bearing inside their own advance width, so the gap
+    // that actually reads on screen is a few px wider than this.
+    //
+    // Each separator is itself a layout child, so it takes this gap on *both*
+    // sides — halved from 8 to keep the widget-to-widget distance where it was
+    // before the rules were added.
+    property int itemGap: 4
 
     // centered on the panel itself, not on the gap between the side items
     Text {
@@ -45,22 +76,37 @@ PanelWindow {
     }
 
     RowLayout {
-        anchors.fill: parent
-        anchors.margins: 8
+        // Horizontal margins only, and an explicit content height rather than
+        // filling the panel: the vertical breathing room is barPadding, so the
+        // row must not claim it.
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.leftMargin: 8
+        anchors.rightMargin: 8
+        anchors.verticalCenter: parent.verticalCenter
+        height: root.contentHeight
+        spacing: root.itemGap
 
-        Repeater {
-            model: 4
+        // Workspaces keep their own spacing so they stay tight as a group and
+        // don't inherit the (wider) gap used between status items.
+        Row {
+            Layout.alignment: Qt.AlignVCenter
+            spacing: 5
 
-            Text {
-                property var ws: Hyprland.workspaces.values.find(w => w.id === index + 1)
-                property bool isActive: Hyprland.focusedWorkspace?.id === index + 1
-                text: index + 1
-                color: isActive ? "#0db9d7" : (ws ? "#7aa2f7" : "#444b6a")
-                font { pixelSize: 14; bold: true }
+            Repeater {
+                model: 4
 
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: Hyprland.dispatch(`hl.dsp.focus({ workspace = ${index + 1} })`)
+                Text {
+                    property var ws: Hyprland.workspaces.values.find(w => w.id === index + 1)
+                    property bool isActive: Hyprland.focusedWorkspace?.id === index + 1
+                    text: index + 1
+                    color: isActive ? "#0db9d7" : (ws ? "#7aa2f7" : "#444b6a")
+                    font { family: root.fontFamily; pixelSize: root.fontSize; bold: true }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: Hyprland.dispatch(`hl.dsp.focus({ workspace = ${index + 1} })`)
+                    }
                 }
             }
         }
@@ -68,14 +114,14 @@ PanelWindow {
         Item { Layout.fillWidth: true }
 
         SystemTrayIndicator {
-            Layout.rightMargin: 10
             Layout.alignment: Qt.AlignVCenter
             colFg: root.colFg
             fontSize: root.fontSize
         }
+
+        BarSeparator { Layout.alignment: Qt.AlignVCenter; color: root.colMuted }
 
         WifiIndicator {
-            Layout.rightMargin: 10
             Layout.alignment: Qt.AlignVCenter
             colBg: root.colBg
             colFg: root.colFg
@@ -86,9 +132,10 @@ PanelWindow {
             fontFamily: root.fontFamily
             fontSize: root.fontSize
         }
+
+        BarSeparator { Layout.alignment: Qt.AlignVCenter; color: root.colMuted }
 
         BluetoothIndicator {
-            Layout.rightMargin: 10
             Layout.alignment: Qt.AlignVCenter
             colBg: root.colBg
             colFg: root.colFg
@@ -100,8 +147,9 @@ PanelWindow {
             fontSize: root.fontSize
         }
 
+        BarSeparator { Layout.alignment: Qt.AlignVCenter; color: root.colMuted }
+
         VolumeIndicator {
-            Layout.rightMargin: 10
             Layout.alignment: Qt.AlignVCenter
             colBg: root.colBg
             colFg: root.colFg
@@ -111,8 +159,9 @@ PanelWindow {
             fontSize: root.fontSize
         }
 
+        BarSeparator { Layout.alignment: Qt.AlignVCenter; color: root.colMuted }
+
         BrightnessIndicator {
-            Layout.rightMargin: 10
             Layout.alignment: Qt.AlignVCenter
             colBg: root.colBg
             colFg: root.colFg
@@ -121,10 +170,11 @@ PanelWindow {
             fontFamily: root.fontFamily
             fontSize: root.fontSize
         }
+
+        BarSeparator { Layout.alignment: Qt.AlignVCenter; color: root.colMuted }
 
         // nightlight manager
         ProcessToggle {
-            Layout.rightMargin: 10
             Layout.alignment: Qt.AlignVCenter
             processName: "hyprsunset"
             glyphOn: 0xF1A4C
@@ -135,9 +185,10 @@ PanelWindow {
             fontSize: root.fontSize
         }
 
+        BarSeparator { Layout.alignment: Qt.AlignVCenter; color: root.colMuted }
+
         // idle manager
         ProcessToggle {
-            Layout.rightMargin: 10
             Layout.alignment: Qt.AlignVCenter
             processName: "hypridle"
             glyphOn: 0xF04B2
@@ -148,8 +199,9 @@ PanelWindow {
             fontSize: root.fontSize
         }
 
+        BarSeparator { Layout.alignment: Qt.AlignVCenter; color: root.colMuted }
+
         BatteryIndicator {
-            Layout.rightMargin: 10
             Layout.alignment: Qt.AlignVCenter
             colFg: root.colFg
             colMuted: root.colMuted
@@ -160,22 +212,31 @@ PanelWindow {
             fontSize: root.fontSize
         }
 
+        BarSeparator { Layout.alignment: Qt.AlignVCenter; color: root.colMuted }
+
         Text {
             id: clock
+
+            // MM is the month; lowercase mm is minutes, so "dd-mm-yyyy" would
+            // render the minute where the month belongs. Kept in one place so
+            // the initial value and the tick below can't drift apart.
+            readonly property string format: "HH:mm dd-MM-yyyy"
+
             color: root.colBlue
-            font { family: root.fontFamily; pixelSize: root.fontSize; bold: true }
-            text: Qt.formatDateTime(new Date(), "ddd, MMM dd - HH:mm")
+            font { family: root.fontFamily; pixelSize: root.fontSize }
+            text: Qt.formatDateTime(new Date(), format)
 
             Timer {
                 interval: 1000
                 running: true
                 repeat: true
-                onTriggered: clock.text = Qt.formatDateTime(new Date(), "ddd, MMM dd - HH:mm")
+                onTriggered: clock.text = Qt.formatDateTime(new Date(), clock.format)
             }
         }
 
+        BarSeparator { Layout.alignment: Qt.AlignVCenter; color: root.colMuted }
+
         PowerMenu {
-            Layout.leftMargin: 12
             Layout.alignment: Qt.AlignVCenter
             colBg: root.colBg
             colFg: root.colFg

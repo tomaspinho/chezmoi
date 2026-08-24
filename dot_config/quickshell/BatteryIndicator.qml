@@ -46,7 +46,7 @@ Row {
         anchors.verticalCenter: parent.verticalCenter
         text: bat.charging ? "󰂄" : bat.levels[Math.round(bat.percent / 10)]
         color: bat.tint
-        font { family: bat.fontFamily; pixelSize: bat.fontSize + 1 }
+        font { family: bat.fontFamily; pixelSize: bat.fontSize }
     }
 
     Text {
