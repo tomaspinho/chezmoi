@@ -132,7 +132,14 @@ Item {
                             font { family: pwr.fontFamily; pixelSize: pwr.fontSize - 2 }
                         }
 
-                        HoverHandler { id: hover }
+                        HoverHandler {
+                            id: hover
+                            // Not on the TapHandler: a pointer handler's
+                            // cursorShape only applies while it is active,
+                            // which for a tap is "while held", not "while
+                            // hovered".
+                            cursorShape: Qt.PointingHandCursor
+                        }
 
                         TapHandler {
                             onTapped: pwr.run(modelData.command)

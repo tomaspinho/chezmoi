@@ -238,7 +238,14 @@ Item {
                             font { family: bt.fontFamily; pixelSize: bt.fontSize - 3 }
                         }
 
-                        HoverHandler { id: hover }
+                        HoverHandler {
+                            id: hover
+                            // Not on the TapHandler: a pointer handler's
+                            // cursorShape only applies while it is active,
+                            // which for a tap is "while held", not "while
+                            // hovered".
+                            cursorShape: Qt.PointingHandCursor
+                        }
 
                         TapHandler {
                             acceptedButtons: Qt.LeftButton | Qt.RightButton

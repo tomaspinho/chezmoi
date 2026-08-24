@@ -217,7 +217,13 @@ Item {
                         font { family: vol.fontFamily; pixelSize: vol.fontSize - 3 }
                     }
 
-                    HoverHandler { id: launchHover }
+                    HoverHandler {
+                        id: launchHover
+                        // Not on the TapHandler: a pointer handler's
+                        // cursorShape only applies while it is active, which
+                        // for a tap is "while held", not "while hovered".
+                        cursorShape: Qt.PointingHandCursor
+                    }
 
                     TapHandler {
                         // Launched through Hyprland rather than execDetached so

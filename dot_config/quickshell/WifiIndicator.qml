@@ -264,7 +264,14 @@ Item {
                             font { family: wifi.fontFamily; pixelSize: wifi.fontSize - 2 }
                         }
 
-                        HoverHandler { id: hover }
+                        HoverHandler {
+                            id: hover
+                            // Not on the TapHandler: a pointer handler's
+                            // cursorShape only applies while it is active,
+                            // which for a tap is "while held", not "while
+                            // hovered".
+                            cursorShape: Qt.PointingHandCursor
+                        }
 
                         TapHandler {
                             acceptedButtons: Qt.LeftButton | Qt.RightButton
@@ -401,7 +408,12 @@ Item {
                         font { family: wifi.fontFamily; pixelSize: wifi.fontSize - 3 }
                     }
 
-                    HoverHandler { id: settingsHover }
+                    HoverHandler {
+                        id: settingsHover
+                        // See the row delegate above: the cursor has to come
+                        // from the hover handler, not the TapHandler.
+                        cursorShape: Qt.PointingHandCursor
+                    }
 
                     TapHandler {
                         onTapped: {
