@@ -162,6 +162,7 @@ PanelWindow {
         BarSeparator { Layout.alignment: Qt.AlignVCenter; color: root.colMuted }
 
         BrightnessIndicator {
+            id: brightness
             Layout.alignment: Qt.AlignVCenter
             colBg: root.colBg
             colFg: root.colFg
@@ -171,7 +172,14 @@ PanelWindow {
             fontSize: root.fontSize
         }
 
-        BarSeparator { Layout.alignment: Qt.AlignVCenter; color: root.colMuted }
+        // Tied to the widget's own visibility: on machines with no
+        // controllable backlight (visible: false, above), this would
+        // otherwise still draw and leave a doubled-up separator.
+        BarSeparator {
+            Layout.alignment: Qt.AlignVCenter
+            color: root.colMuted
+            visible: brightness.available
+        }
 
         // nightlight manager
         ProcessToggle {
@@ -199,9 +207,17 @@ PanelWindow {
             fontSize: root.fontSize
         }
 
-        BarSeparator { Layout.alignment: Qt.AlignVCenter; color: root.colMuted }
+        // Tied to the battery's own visibility: on machines with no battery
+        // (visible: false, above), this would otherwise still draw and leave
+        // a doubled-up separator next to the one before the clock.
+        BarSeparator {
+            Layout.alignment: Qt.AlignVCenter
+            color: root.colMuted
+            visible: battery.available
+        }
 
         BatteryIndicator {
+            id: battery
             Layout.alignment: Qt.AlignVCenter
             colFg: root.colFg
             colMuted: root.colMuted

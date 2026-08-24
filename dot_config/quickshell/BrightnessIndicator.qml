@@ -26,6 +26,14 @@ Item {
     property int percent: -1
     readonly property bool ready: percent >= 0
 
+    // False until proven otherwise: some machines (this desktop, driving its
+    // monitor over DisplayPort) have no backlight-class device at all, so
+    // brightnessctl would otherwise fall back to whatever it finds first —
+    // e.g. a keyboard LED — and report that as if it were display
+    // brightness. -c backlight below keeps parseInfo from ever seeing those,
+    // so a successful read here means a real, controllable backlight exists.
+    readonly property bool available: ready
+
     // The md brightness-1..7 block isn't a usable ramp in this font (it mixes
     // moons, contrast circles and an auto-brightness glyph), so this is just a
     // dim sun and a bright sun. The percentage carries the detail.
@@ -77,7 +85,9 @@ Item {
 
     Process {
         id: readProc
-        command: ["brightnessctl", "-m", "info"]
+        // -c backlight: without it brightnessctl picks a "default" device
+        // that can be a keyboard LED, not the display backlight.
+        command: ["brightnessctl", "-m", "-c", "backlight", "info"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: br.parseInfo(text)
@@ -86,7 +96,7 @@ Item {
 
     Process {
         id: setProc
-        command: ["brightnessctl", "-m", "set", "50%"]
+        command: ["brightnessctl", "-m", "-c", "backlight", "set", "50%"]
         onExited: br.refresh()
     }
 
@@ -96,7 +106,7 @@ Item {
         interval: 60
         onTriggered: {
             if (br.pending < 0) return;
-            setProc.command = ["brightnessctl", "-m", "set", `${br.pending}%`];
+            setProc.command = ["brightnessctl", "-m", "-c", "backlight", "set", `${br.pending}%`];
             setProc.running = true;
             br.pending = -1;
         }
@@ -109,6 +119,10 @@ Item {
         repeat: true
         onTriggered: br.refresh()
     }
+
+    // hidden on machines with no controllable backlight (e.g. a desktop
+    // driving a DisplayPort monitor)
+    visible: available
 
     implicitWidth: content.implicitWidth
     implicitHeight: content.implicitHeight
