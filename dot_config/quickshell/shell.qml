@@ -10,7 +10,6 @@
 
 import Quickshell
 import Quickshell.Wayland
-import Quickshell.Hyprland
 import Quickshell.Io
 import QtQuick
 import QtQuick.Layouts
@@ -82,15 +81,12 @@ PanelWindow {
     property int itemGap: 4
 
     // centered on the panel itself, not on the gap between the side items
-    Text {
+    WindowTitle {
         id: windowTitle
         anchors.centerIn: parent
-        width: Math.min(implicitWidth, root.width * 0.3)
-        horizontalAlignment: Text.AlignHCenter
-        elide: Text.ElideRight
+        maxWidth: root.width * 0.3
         color: root.colFg
         font { family: root.fontFamily; pixelSize: root.fontSize }
-        text: Hyprland.activeToplevel?.title ?? ""
     }
 
     RowLayout {
@@ -105,31 +101,13 @@ PanelWindow {
         height: root.contentHeight
         spacing: root.itemGap
 
-        // Workspaces keep their own spacing so they stay tight as a group and
-        // don't inherit the (wider) gap used between status items.
-        Row {
+        WorkspaceSelector {
             Layout.alignment: Qt.AlignVCenter
-            spacing: 5
-
-            Repeater {
-                model: 4
-                RowLayout {
-                    Text {
-                        property var ws: Hyprland.workspaces.values.find(w => w.id === index + 1)
-                        property bool isActive: Hyprland.focusedWorkspace?.id === index + 1
-                        text: index + 1
-                        color: isActive ? "#0db9d7" : (ws ? "#7aa2f7" : "#444b6a")
-                        font { family: root.fontFamily; pixelSize: root.fontSize; }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: Hyprland.dispatch(`hl.dsp.focus({ workspace = ${index + 1} })`)
-                        }
-                    }
-
-                    BarSeparator { color: root.colMuted ; visible: index + 1 < 4 }
-                }
-            }
+            colMuted: root.colMuted
+            colCyan: root.colCyan
+            colBlue: root.colBlue
+            fontFamily: root.fontFamily
+            fontSize: root.fontSize
         }
 
         Item { Layout.fillWidth: true }
