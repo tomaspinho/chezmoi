@@ -11,6 +11,7 @@
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
+import Quickshell.Io
 import QtQuick
 import QtQuick.Layouts
 
@@ -31,9 +32,26 @@ PanelWindow {
     property color colRed: "#f7768e"
     property string fontFamily: "JetBrainsMono Nerd Font"
 
+    // Per-machine: this config is shared across machines (desktop + laptop),
+    // and this desktop ("office") gets a bigger base size than everywhere
+    // else, which stays at the 14 default. Starts at the default and flips
+    // once hostnameProc reports back, same startup-lag tradeoff as the other
+    // widgets that read their state from an external process.
+    readonly property string officeHostname: "office"
+    property string hostname: ""
+
+    Process {
+        id: hostnameProc
+        command: ["hostname"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: root.hostname = text.trim()
+        }
+    }
+
     // One size for everything on the bar. Every widget takes this via its own
     // fontSize property; nothing on the bar derives a size from it any more.
-    property int fontSize: 14
+    property int fontSize: hostname === officeHostname ? 16 : 14
 
     // Every Text on the bar is one line, so its height is exactly this font's
     // line box. Driving the panel off the metrics rather than a measured ink

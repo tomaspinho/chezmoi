@@ -82,7 +82,11 @@ Item {
         anchors.centerIn: parent
         text: String.fromCodePoint(toggle.running ? toggle.glyphOn : toggle.glyphOff)
         color: toggle.running ? toggle.colOn : toggle.colOff
-        font { family: toggle.fontFamily; pixelSize: toggle.fontSize }
+        // +4: same as the wifi icon fix - both the nightlight and idle-manager
+        // glyphs are drawn small/thin within their cell next to bar icons
+        // like bluetooth, so they read as noticeably smaller at the same
+        // pixelSize.
+        font { family: toggle.fontFamily; pixelSize: toggle.fontSize + 4 }
     }
 
     MouseArea {

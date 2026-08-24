@@ -148,7 +148,7 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "Bluetooth"
                         color: bt.colFg
-                        font { family: bt.fontFamily; pixelSize: bt.fontSize; bold: true }
+                        font { family: bt.fontFamily; pixelSize: bt.fontSize }
                     }
 
                     Text {

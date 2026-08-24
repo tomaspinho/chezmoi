@@ -53,6 +53,6 @@ Row {
         anchors.verticalCenter: parent.verticalCenter
         text: `${bat.percent}%`
         color: bat.tint
-        font { family: bat.fontFamily; pixelSize: bat.fontSize; bold: bat.percent <= 15 }
+        font { family: bat.fontFamily; pixelSize: bat.fontSize }
     }
 }

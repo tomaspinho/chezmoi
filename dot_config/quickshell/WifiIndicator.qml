@@ -76,7 +76,10 @@ Item {
     Text {
         id: icon
         anchors.centerIn: parent
-        font { family: wifi.fontFamily; pixelSize: wifi.fontSize }
+        // +4: these glyphs (esp. the outline/no-signal ones) are drawn much
+        // smaller within their cell than the other bar icons, so they read
+        // as noticeably smaller at the same pixelSize.
+        font { family: wifi.fontFamily; pixelSize: wifi.fontSize + 4 }
         color: !Networking.wifiEnabled ? wifi.colMuted
             : wifi.active ? wifi.colCyan : wifi.colYellow
         text: !Networking.wifiEnabled ? "󰤮"
