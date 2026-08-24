@@ -141,6 +141,17 @@ PanelWindow {
 
         WifiIndicator {
             Layout.alignment: Qt.AlignVCenter
+            // The icon glyph is drawn at fontSize+4 (see WifiIndicator.qml) to
+            // compensate for how small it reads at the true size, which makes
+            // this item's own implicitHeight taller than everyone else's. Left
+            // alone, that inflates the *row's* implicitHeight past contentHeight,
+            // and RowLayout centers every Qt.AlignVCenter sibling against that
+            // inflated figure rather than the row's real (clamped) height -
+            // pushing plain text like the clock and workspace numbers visibly
+            // below true centre. Pinning preferredHeight keeps this cell's
+            // footprint the same as everyone else's; the oversized glyph still
+            // renders centered within it, just overflowing the cell slightly.
+            Layout.preferredHeight: root.contentHeight
             colBg: root.colBg
             colFg: root.colFg
             colMuted: root.colMuted
@@ -202,6 +213,11 @@ PanelWindow {
         // nightlight manager
         ProcessToggle {
             Layout.alignment: Qt.AlignVCenter
+            // See the comment on WifiIndicator's Layout.preferredHeight above:
+            // this glyph is also drawn oversized (fontSize+4) to compensate for
+            // reading small, which would otherwise inflate the row's own
+            // implicitHeight and push every plain-text sibling below centre.
+            Layout.preferredHeight: root.contentHeight
             processName: "hyprsunset"
             glyphOn: 0xF1A4C
             glyphOff: 0xF1A4D
@@ -216,6 +232,7 @@ PanelWindow {
         // idle manager
         ProcessToggle {
             Layout.alignment: Qt.AlignVCenter
+            Layout.preferredHeight: root.contentHeight
             processName: "hypridle"
             glyphOn: 0xF04B2
             glyphOff: 0xF04B3
@@ -250,6 +267,7 @@ PanelWindow {
 
         Text {
             id: clock
+            Layout.alignment: Qt.AlignVCenter
 
             // MM is the month; lowercase mm is minutes, so "dd-mm-yyyy" would
             // render the minute where the month belongs. Kept in one place so
