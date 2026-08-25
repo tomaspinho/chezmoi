@@ -48,6 +48,20 @@ PanelWindow {
         }
     }
 
+    // Its own top-level layer-shell surface (see Notifications.qml), not a
+    // bar widget - popups float independently of the bar's position/size.
+    Notifications {
+        topOffset: root.height
+        colBg: root.colBg
+        colFg: root.colFg
+        colMuted: root.colMuted
+        colBlue: root.colBlue
+        colYellow: root.colYellow
+        colRed: root.colRed
+        fontFamily: root.fontFamily
+        fontSize: root.fontSize
+    }
+
     // One size for everything on the bar. Every widget takes this via its own
     // fontSize property; nothing on the bar derives a size from it any more.
     property int fontSize: hostname === officeHostname ? 16 : 14
