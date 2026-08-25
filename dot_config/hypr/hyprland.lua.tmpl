@@ -53,8 +53,7 @@ hl.on("hyprland.start", function()
 
     hl.exec_cmd("quickshell")
 
-    hl.exec_cmd("swaync & hyprpaper & hypridle & nm-applet")
-    hl.exec_cmd("hyprsunset")
+    hl.exec_cmd("hyprpaper & hypridle & hyprsunset")
 
     -- Set up the desktop portal environment for screensharing
     hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
