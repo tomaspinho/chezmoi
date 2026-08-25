@@ -62,6 +62,18 @@ PanelWindow {
         fontSize: root.fontSize
     }
 
+    // Also its own top-level surface (see AppLauncher.qml). Has no bar
+    // widget at all - opened via `qs ipc call launcher toggle`, meant to be
+    // bound to a compositor keybind.
+    AppLauncher {
+        colBg: root.colBg
+        colFg: root.colFg
+        colMuted: root.colMuted
+        colBlue: root.colBlue
+        fontFamily: root.fontFamily
+        fontSize: root.fontSize
+    }
+
     // One size for everything on the bar. Every widget takes this via its own
     // fontSize property; nothing on the bar derives a size from it any more.
     property int fontSize: hostname === officeHostname ? 16 : 14
