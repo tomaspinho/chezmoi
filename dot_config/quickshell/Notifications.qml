@@ -35,6 +35,43 @@ PanelWindow {
         root.popups = root.popups.filter(n => n !== notification);
     }
 
+    // History for NotificationHistoryButton's dropdown, most recent first.
+    // Snapshotted as plain data rather than kept as live Notification
+    // references: history entries just need to be displayed, never
+    // dismissed/expired, so there's no reason to hold the DBus-backed
+    // objects (and their `tracked` keep-alive) around any longer than the
+    // popup itself needs them.
+    readonly property int maxHistory: 50
+    property var history: []
+    // Own id counter for history entries - they're plain JS object literals,
+    // not the QObject-backed Notification instances popups.filter() above
+    // can safely compare by reference. Those *don't* keep reference
+    // identity once round-tripped through a ListView's `model`/`modelData`
+    // (observed directly: removeHistoryEntry's `r !== record` matched
+    // every entry, including the one that was supposedly just clicked), so
+    // removal has to go by an explicit id instead.
+    property int nextHistoryId: 0
+
+    function pushHistory(notification) {
+        const record = {
+            id: root.nextHistoryId++,
+            summary: notification.summary,
+            body: notification.body,
+            appName: notification.appName,
+            appIcon: notification.appIcon,
+            image: notification.image,
+            urgency: notification.urgency,
+            time: Date.now(),
+        };
+        root.history = [record, ...root.history].slice(0, root.maxHistory);
+    }
+
+    function clearHistory() { root.history = []; }
+
+    function removeHistoryEntry(id) {
+        root.history = root.history.filter(r => r.id !== id);
+    }
+
     anchors.top: true
     anchors.right: true
     margins.top: root.topOffset + 8
@@ -80,6 +117,7 @@ PanelWindow {
             // alive for as long as we hold a reference.
             notification.tracked = true;
             root.popups = root.popups.concat([notification]);
+            root.pushHistory(notification);
         }
     }
 
@@ -109,10 +147,16 @@ PanelWindow {
                 // The closed signal fires whichever way the notification
                 // went away - our own timeout, a click-to-dismiss, or the
                 // sending app withdrawing/replacing it over DBus - so this
-                // is the one place popups get pruned from the list.
+                // is the one place popups get pruned from the list. Untrack
+                // it too: history already has its own snapshot of anything
+                // worth keeping, so there's no reason to hold the live
+                // object (and let it dodge GC) any longer than that.
                 Connections {
                     target: bubble.notification
-                    function onClosed() { root.removePopup(bubble.modelData); }
+                    function onClosed() {
+                        root.removePopup(bubble.modelData);
+                        bubble.modelData.tracked = false;
+                    }
                 }
             }
         }

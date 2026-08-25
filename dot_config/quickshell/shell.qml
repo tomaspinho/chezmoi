@@ -21,6 +21,29 @@ PanelWindow {
     anchors.right: true
     implicitHeight: root.contentHeight + root.barPadding * 2
     color: "#1a1b26"
+
+    // OnDemand rather than None: the bar never remaps (it's mapped once at
+    // launch and stays that way all session), so unlike
+    // NotificationHistoryPane.qml this is safe to have statically - it's
+    // specifically what makes the Escape handler below reachable at all,
+    // since clicking any bar icon (e.g. NotificationHistoryButton) grants
+    // the bar keyboard focus under OnDemand semantics. That handler exists
+    // here rather than on the pane itself because giving *that* ephemeral,
+    // repeatedly-mapped surface its own keyboard focus (even just
+    // WlrKeyboardFocus.OnDemand, even without ever forcing it) was
+    // observed to corrupt click hit-testing on the bar's own buttons.
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+
+    // `focus`/`Keys` aren't available directly on PanelWindow itself (it's
+    // not a plain Item) - this is the focus scope that actually receives
+    // Escape once WlrKeyboardFocus above grants the bar's surface
+    // keyboard focus.
+    Item {
+        anchors.fill: parent
+        focus: true
+        Keys.onEscapePressed: if (notificationHistory.open) notificationHistory.hide()
+    }
+
     property color colBg: "#1a1b26"
     property color colFg: "#a9b1d6"
     property color colMuted: "#444b6a"
@@ -51,6 +74,7 @@ PanelWindow {
     // Its own top-level layer-shell surface (see Notifications.qml), not a
     // bar widget - popups float independently of the bar's position/size.
     Notifications {
+        id: notifications
         topOffset: root.height
         colBg: root.colBg
         colFg: root.colFg
@@ -70,6 +94,24 @@ PanelWindow {
         colFg: root.colFg
         colMuted: root.colMuted
         colBlue: root.colBlue
+        fontFamily: root.fontFamily
+        fontSize: root.fontSize
+    }
+
+    // Also its own top-level surface (see NotificationHistoryPane.qml) -
+    // needs the full screen height to slide in from the right, which the
+    // bar's NotificationHistoryButton (its toggle target) can't provide on
+    // its own.
+    NotificationHistoryPane {
+        id: notificationHistory
+        history: notifications.history
+        onClearRequested: notifications.clearHistory()
+        onDismissRequested: id => notifications.removeHistoryEntry(id)
+        colBg: root.colBg
+        colFg: root.colFg
+        colMuted: root.colMuted
+        colBlue: root.colBlue
+        colRed: root.colRed
         fontFamily: root.fontFamily
         fontSize: root.fontSize
     }
@@ -301,6 +343,20 @@ PanelWindow {
             colFg: root.colFg
             colMuted: root.colMuted
             colRed: root.colRed
+            fontFamily: root.fontFamily
+            fontSize: root.fontSize
+        }
+
+        BarSeparator { Layout.alignment: Qt.AlignVCenter; color: root.colMuted }
+
+        NotificationHistoryButton {
+            Layout.alignment: Qt.AlignVCenter
+            open: notificationHistory.open
+            historyCount: notifications.history.length
+            onToggleRequested: notificationHistory.toggle()
+            colFg: root.colFg
+            colMuted: root.colMuted
+            colBlue: root.colBlue
             fontFamily: root.fontFamily
             fontSize: root.fontSize
         }
