@@ -1,6 +1,7 @@
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Networking
+import Quickshell.Io
 import QtQuick
 import QtQuick.Controls
 
@@ -84,6 +85,60 @@ Item {
         property: "scannerEnabled"
         value: wifi.expanded
         when: wifi.device !== null
+    }
+
+    // ip/gateway per kernel interface name (device.name is that name, e.g.
+    // "enp6s0"/"wlp5s0" - confirmed against the same machine's `nmcli
+    // device status`), not exposed by Quickshell.Networking itself. Cheap
+    // enough that it just runs on a plain timer while the popup is open,
+    // rather than needing the scanner's tighter enable-on-expand gating.
+    property var ifaceAddress: ({})
+    property var ifaceGateway: ({})
+
+    function hostIpFor(ifname) { return ifname ? (wifi.ifaceAddress[ifname] ?? "") : ""; }
+    function gatewayIpFor(ifname) { return ifname ? (wifi.ifaceGateway[ifname] ?? "") : ""; }
+
+    Timer {
+        interval: 5000
+        running: wifi.expanded
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: { addrProc.running = true; routeProc.running = true; }
+    }
+
+    Process {
+        id: addrProc
+        command: ["ip", "-j", "addr", "show", "scope", "global"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const result = {};
+                try {
+                    for (const iface of JSON.parse(text)) {
+                        const inet = (iface.addr_info ?? []).find(a => a.family === "inet");
+                        if (inet) result[iface.ifname] = `${inet.local}/${inet.prefixlen}`;
+                    }
+                } catch (e) { /* malformed/empty output between interface changes - keep the old map */ }
+                wifi.ifaceAddress = result;
+            }
+        }
+    }
+
+    Process {
+        id: routeProc
+        // Only the default route's interface gets a gateway shown - a
+        // secondary/non-default route's gateway isn't what's actually
+        // carrying this machine's traffic.
+        command: ["ip", "-j", "route", "show", "default"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const result = {};
+                try {
+                    for (const route of JSON.parse(text))
+                        if (route.dev && route.gateway) result[route.dev] = route.gateway;
+                } catch (e) { /* see addrProc */ }
+                wifi.ifaceGateway = result;
+            }
+        }
     }
 
     implicitWidth: icon.implicitWidth
@@ -228,15 +283,21 @@ Item {
 
                     delegate: Rectangle {
                         required property var modelData
+                        // Only the connected network has an interface to
+                        // report on; everything else was never assigned one.
+                        readonly property string hostIp:
+                            modelData.connected ? wifi.hostIpFor(wifi.device?.name) : ""
+                        readonly property string gatewayIp:
+                            modelData.connected ? wifi.gatewayIpFor(wifi.device?.name) : ""
 
                         width: ListView.view.width
-                        height: 26
+                        height: hostIp !== "" ? 58 : 26
                         radius: 4
                         color: hover.hovered ? Qt.lighter(wifi.colBg, 1.6) : "transparent"
 
                         Text {
                             id: rowBars
-                            anchors { left: parent.left; leftMargin: 6; verticalCenter: parent.verticalCenter }
+                            anchors { left: parent.left; leftMargin: 6; top: parent.top; topMargin: 5 }
                             text: wifi.barsFor(modelData.signalStrength)
                             color: modelData.connected ? wifi.colCyan : wifi.colMuted
                             font { family: wifi.fontFamily; pixelSize: wifi.fontSize }
@@ -246,7 +307,7 @@ Item {
                             anchors {
                                 left: rowBars.right; leftMargin: 8
                                 right: rowState.left; rightMargin: 6
-                                verticalCenter: parent.verticalCenter
+                                top: parent.top; topMargin: 5
                             }
                             text: modelData.name + (wifi.isOpen(modelData) ? "" : " 󰌾")
                             elide: Text.ElideRight
@@ -257,11 +318,29 @@ Item {
 
                         Text {
                             id: rowState
-                            anchors { right: parent.right; rightMargin: 6; verticalCenter: parent.verticalCenter }
+                            anchors { right: parent.right; rightMargin: 6; top: parent.top; topMargin: 5 }
                             text: modelData.stateChanging ? "…"
                                 : modelData.connected ? "󰄬" : ""
                             color: wifi.colCyan
                             font { family: wifi.fontFamily; pixelSize: wifi.fontSize - 2 }
+                        }
+
+                        Text {
+                            anchors { left: rowBars.right; leftMargin: 8; right: parent.right; rightMargin: 6; top: parent.top; topMargin: 23 }
+                            visible: parent.hostIp !== ""
+                            elide: Text.ElideRight
+                            text: "Host IP: " + (parent.hostIp ?? "")
+                            color: wifi.colMuted
+                            font { family: wifi.fontFamily; pixelSize: wifi.fontSize - 3 }
+                        }
+
+                        Text {
+                            anchors { left: rowBars.right; leftMargin: 8; right: parent.right; rightMargin: 6; top: parent.top; topMargin: 39 }
+                            visible: parent.gatewayIp !== ""
+                            elide: Text.ElideRight
+                            text: "Gateway IP: " + (parent.gatewayIp ?? "")
+                            color: wifi.colMuted
+                            font { family: wifi.fontFamily; pixelSize: wifi.fontSize - 3 }
                         }
 
                         HoverHandler {
@@ -294,6 +373,21 @@ Item {
                     }
                 }
 
+                Text {
+                    width: parent.width
+                    visible: wifi.networks.length > 0
+                    padding: 4
+                    // scannerEnabled is what this file itself drives (tied
+                    // to wifi.expanded above) rather than a true "scan in
+                    // progress right now" signal, but it's the closest
+                    // analog Quickshell.Networking exposes to Bluetooth's
+                    // adapter.discovering.
+                    text: (wifi.device?.scannerEnabled ?? false) ? "Scanning…  ·  right-click to forget"
+                        : "right-click to forget"
+                    color: wifi.colMuted
+                    font { family: wifi.fontFamily; pixelSize: wifi.fontSize - 4 }
+                }
+
                 Item {
                     width: parent.width
                     height: popup.pending ? 30 : 0
@@ -322,9 +416,16 @@ Item {
                             Component.onCompleted: if (visible) forceActiveFocus()
 
                             onAccepted: {
+                                // Clears the password field rather than
+                                // closing the whole popup (popup.close()),
+                                // so the list stays open to actually show
+                                // the row going through its connecting
+                                // state to the checkmark - or, via the
+                                // connectionFailed handler below, back to
+                                // this same password prompt on failure.
                                 popup.pending.connectWithPsk(text);
                                 text = "";
-                                popup.close();
+                                popup.pending = null;
                             }
                             Keys.onEscapePressed: {
                                 text = "";
@@ -347,29 +448,55 @@ Item {
                 // Wired has at most one device/profile, so it gets a single
                 // compact row rather than a whole section like Wi-Fi's list -
                 // and it's hidden entirely on machines with no ethernet port.
-                Rectangle {
+                // Taller than a bare separator (with the line kept at the
+                // bottom) so there's a clearer gap between the Wi-Fi list
+                // above and the wired section below than the Column's
+                // regular spacing gives every other row pair.
+                Item {
                     width: parent.width
-                    height: 1
+                    height: 10
                     visible: wifi.wiredDevice !== null
-                    color: wifi.colMuted
+
+                    Rectangle {
+                        anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
+                        height: 1
+                        color: wifi.colMuted
+                    }
                 }
 
                 Item {
+                    id: wiredRow
                     width: parent.width
-                    height: 24
+                    readonly property string hostIp: wifi.hostIpFor(wifi.wiredDevice?.name)
+                    readonly property string gatewayIp: wifi.gatewayIpFor(wifi.wiredDevice?.name)
+                    // Tall enough for the IP/gateway rows only when there's
+                    // actually something to show (i.e. connected).
+                    height: wiredRow.hostIp !== "" ? 56 : 24
                     visible: wifi.wiredDevice !== null
 
                     Text {
-                        anchors { left: parent.left; right: ethState.left; rightMargin: 6; verticalCenter: parent.verticalCenter }
+                        id: wiredIcon
+                        anchors { left: parent.left; top: parent.top; topMargin: 4 }
+                        text: wifi.ethernetGlyph
+                        color: wifi.wiredConnected ? wifi.colCyan : wifi.colFg
+                        font { family: wifi.fontFamily; pixelSize: wifi.fontSize - 2 }
+                    }
+
+                    Text {
+                        // Same left anchor (wiredIcon.right + 8) as the IP
+                        // rows below, so the name and the labels underneath
+                        // it line up exactly - same pattern as the Wi-Fi
+                        // list delegate's rowBars/name/IP-row anchors.
+                        anchors { left: wiredIcon.right; leftMargin: 8; right: ethState.left; rightMargin: 6; top: parent.top; topMargin: 4 }
                         elide: Text.ElideRight
-                        text: wifi.ethernetGlyph + "  " + (wifi.wiredNetwork?.name ?? wifi.wiredDevice?.name ?? "Ethernet")
+                        text: wifi.wiredNetwork?.name ?? wifi.wiredDevice?.name ?? "Ethernet"
                         color: wifi.wiredConnected ? wifi.colCyan : wifi.colFg
                         font { family: wifi.fontFamily; pixelSize: wifi.fontSize - 2 }
                     }
 
                     Text {
                         id: ethState
-                        anchors { right: parent.right; verticalCenter: parent.verticalCenter }
+                        anchors { right: parent.right; top: parent.top; topMargin: 4 }
                         text: wifi.wiredDevice && !wifi.wiredDevice.hasLink ? "unplugged"
                             : wifi.wiredNetwork?.stateChanging ? "…"
                             : wifi.wiredConnected ? "on" : "off"
@@ -382,6 +509,24 @@ Item {
                             enabled: wifi.wiredNetwork !== null && wifi.wiredDevice.hasLink
                             onClicked: wifi.wiredConnected ? wifi.wiredNetwork.disconnect() : wifi.wiredNetwork.connect()
                         }
+                    }
+
+                    Text {
+                        anchors { left: wiredIcon.right; leftMargin: 8; right: parent.right; top: parent.top; topMargin: 22 }
+                        visible: wiredRow.hostIp !== ""
+                        elide: Text.ElideRight
+                        text: "Host IP: " + wiredRow.hostIp
+                        color: wifi.colMuted
+                        font { family: wifi.fontFamily; pixelSize: wifi.fontSize - 3 }
+                    }
+
+                    Text {
+                        anchors { left: wiredIcon.right; leftMargin: 8; right: parent.right; top: parent.top; topMargin: 38 }
+                        visible: wiredRow.gatewayIp !== ""
+                        elide: Text.ElideRight
+                        text: "Gateway IP: " + wiredRow.gatewayIp
+                        color: wifi.colMuted
+                        font { family: wifi.fontFamily; pixelSize: wifi.fontSize - 3 }
                     }
                 }
 
