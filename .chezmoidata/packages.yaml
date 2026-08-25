@@ -24,7 +24,6 @@ packages:
     - hyprpolkitagent
     - hyprsunset # Change screen color temperature depending on time of day
     - quickshell
-    - wofi
     - xdg-desktop-portal-hyprland
 
     # Utilities for hyprland desktop environment to be usable
