@@ -55,7 +55,9 @@ Rectangle {
     Row {
         id: content
         anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter }
-        anchors { leftMargin: 12; rightMargin: 10 }
+        // rightMargin wider than the left to leave room for dismissButton
+        // in the corner, same as NotificationHistoryPane's entries.
+        anchors { leftMargin: 12; rightMargin: 22 }
         spacing: 10
 
         IconImage {
@@ -94,10 +96,39 @@ Rectangle {
 
     HoverHandler { id: hover }
 
-    TapHandler {
+    MouseArea {
         // Click anywhere on the bubble to dismiss early, same as every
-        // other notification daemon.
-        onTapped: bubble.notification.dismiss()
+        // other notification daemon. MouseArea rather than TapHandler:
+        // inside a Repeater delegate, TapHandler's tap recognition was
+        // observed (on NotificationHistoryPane's dismiss button) to eat
+        // clicks entirely - hover still worked, onTapped never fired.
+        anchors.fill: parent
+        onClicked: bubble.notification.dismiss()
+    }
+
+    // Explicit dismiss button, same corner/style as NotificationHistoryPane's
+    // entries - declared after (so on top of) the whole-bubble MouseArea
+    // above, so a click here takes priority over the general dismiss-anywhere
+    // behavior rather than double-firing it.
+    Item {
+        anchors { right: parent.right; top: parent.top; margins: 2 }
+        width: 20
+        height: 20
+
+        Text {
+            anchors.centerIn: parent
+            text: "×"
+            color: dismissArea.containsMouse ? bubble.colRed : bubble.colMuted
+            font { family: bubble.fontFamily; pixelSize: bubble.fontSize + 2 }
+        }
+
+        MouseArea {
+            id: dismissArea
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: bubble.notification.dismiss()
+        }
     }
 
     Timer {
