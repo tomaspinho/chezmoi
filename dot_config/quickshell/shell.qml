@@ -314,25 +314,18 @@ PanelWindow {
 
         BarSeparator { Layout.alignment: Qt.AlignVCenter; color: root.colMuted }
 
-        Text {
-            id: clock
+        // Hovering it opens a day-of-week + month-calendar popover; see
+        // Clock.qml.
+        Clock {
             Layout.alignment: Qt.AlignVCenter
-
-            // MM is the month; lowercase mm is minutes, so "dd-mm-yyyy" would
-            // render the minute where the month belongs. Kept in one place so
-            // the initial value and the tick below can't drift apart.
-            readonly property string format: "HH:mm dd-MM-yyyy"
-
-            color: root.colBlue
-            font { family: root.fontFamily; pixelSize: root.fontSize }
-            text: Qt.formatDateTime(new Date(), format)
-
-            Timer {
-                interval: 1000
-                running: true
-                repeat: true
-                onTriggered: clock.text = Qt.formatDateTime(new Date(), clock.format)
-            }
+            colBg: root.colBg
+            colFg: root.colFg
+            colMuted: root.colMuted
+            colBlue: root.colBlue
+            colYellow: root.colYellow
+            colGreen: root.colGreen
+            fontFamily: root.fontFamily
+            fontSize: root.fontSize
         }
 
         BarSeparator { Layout.alignment: Qt.AlignVCenter; color: root.colMuted }
