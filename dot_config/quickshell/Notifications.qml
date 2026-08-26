@@ -147,16 +147,21 @@ PanelWindow {
                 // The closed signal fires whichever way the notification
                 // went away - our own timeout, a click-to-dismiss, or the
                 // sending app withdrawing/replacing it over DBus - so this
-                // is the one place popups get pruned from the list. Untrack
-                // it too: history already has its own snapshot of anything
-                // worth keeping, so there's no reason to hold the live
-                // object (and let it dodge GC) any longer than that.
+                // is the one place a dismissal starts. The popup stays in
+                // `popups` (and the window stays mapped/sized around it)
+                // until it's actually finished sliding out.
                 Connections {
                     target: bubble.notification
-                    function onClosed() {
-                        root.removePopup(bubble.modelData);
-                        bubble.modelData.tracked = false;
-                    }
+                    function onClosed() { bubble.playDismiss(); }
+                }
+
+                // Untrack once it's really gone: history already has its
+                // own snapshot of anything worth keeping, so there's no
+                // reason to hold the live object (and let it dodge GC) any
+                // longer than the slide-out took.
+                onDismissFinished: {
+                    root.removePopup(bubble.modelData);
+                    bubble.modelData.tracked = false;
                 }
             }
         }

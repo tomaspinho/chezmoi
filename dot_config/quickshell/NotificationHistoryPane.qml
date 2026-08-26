@@ -206,6 +206,19 @@ PanelWindow {
                     entry.modelData.urgency === NotificationUrgency.Critical ? root.colRed
                         : root.colBlue
 
+                // Slides fully clear of the pane (clipped by the ListView
+                // above) before actually asking Notifications.qml to drop
+                // it, rather than disappearing instantly.
+                NumberAnimation {
+                    id: slideOutAnim
+                    target: entry
+                    property: "x"
+                    to: entry.width + 40
+                    duration: 220
+                    easing.type: Easing.InCubic
+                    onFinished: root.dismissRequested(entry.modelData.id)
+                }
+
                 Rectangle {
                     anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
                     width: 3
@@ -238,7 +251,7 @@ PanelWindow {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.dismissRequested(entry.modelData.id)
+                        onClicked: if (!slideOutAnim.running) slideOutAnim.start()
                     }
                 }
 

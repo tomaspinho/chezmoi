@@ -40,6 +40,29 @@ Rectangle {
         : notification.appIcon !== "" ? Quickshell.iconPath(notification.appIcon, "")
         : ""
 
+    // Notifications.qml owns removing this from its list, same as always,
+    // but only once this has actually finished sliding out - see
+    // playDismiss()/dismissFinished below.
+    signal dismissFinished()
+
+    function playDismiss() {
+        if (!slideOutAnim.running) slideOutAnim.start();
+    }
+
+    NumberAnimation {
+        id: slideOutAnim
+        target: bubble
+        property: "x"
+        // Past the bubble's own width is enough to clear it - the window
+        // behind it is exactly as wide as the bubble and anchored flush to
+        // the screen's right edge, so this reads as sliding off the
+        // screen, not just off the bubble's starting position.
+        to: bubble.width + 40
+        duration: 220
+        easing.type: Easing.InCubic
+        onFinished: bubble.dismissFinished()
+    }
+
     implicitHeight: content.implicitHeight + 16
     color: colBg
     border { width: 1; color: colMuted }
