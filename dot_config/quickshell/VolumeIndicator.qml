@@ -69,26 +69,6 @@ Item {
         return players.find(p => p.isPlaying) ?? players[0];
     }
 
-    // Hover-card visibility, with a grace period so moving the pointer
-    // from the icon down into the popup itself (there's a real gap between
-    // them) doesn't read as "left" and close it out from under the cursor.
-    property bool mediaVisible: false
-    readonly property bool mediaHoverActive: iconHover.hovered || mediaPopupHover.hovered
-    onMediaHoverActiveChanged: {
-        if (mediaHoverActive) {
-            mediaCloseTimer.stop();
-            vol.mediaVisible = true;
-        } else {
-            mediaCloseTimer.restart();
-        }
-    }
-
-    Timer {
-        id: mediaCloseTimer
-        interval: 250
-        onTriggered: vol.mediaVisible = false
-    }
-
     implicitWidth: content.implicitWidth
     implicitHeight: content.implicitHeight
 
@@ -118,162 +98,16 @@ Item {
         onClicked: vol.expanded = !vol.expanded
     }
 
-    // Separate from the MouseArea above - HoverHandler tracks hover
-    // independently of it rather than through it, so this coexists fine
-    // without touching the click/wheel handling.
-    HoverHandler { id: iconHover }
-
     HyprlandFocusGrab {
         active: vol.expanded
         windows: [fader]
         onCleared: vol.expanded = false
     }
 
-    // Now-playing hover card. No focus grab like the fader below - it's
-    // dismissed purely by the mouse leaving (mediaCloseTimer above), never
-    // meant to hold input, and yielding to the fader (visible check below)
-    // means clicking the icon to adjust volume never leaves both stacked
-    // on top of each other at the same anchor point.
-    PopupWindow {
-        id: mediaPopup
-
-        anchor {
-            item: vol
-            edges: Edges.Bottom
-            gravity: Edges.Bottom | Edges.Left
-            margins.top: 6
-        }
-
-        color: "transparent"
-        visible: vol.mediaVisible && vol.mprisPlayer !== null && !vol.expanded
-        implicitWidth: 260
-        implicitHeight: mediaFrame.implicitHeight
-
-        HoverHandler { id: mediaPopupHover }
-
-        Rectangle {
-            id: mediaFrame
-            anchors.fill: parent
-            implicitHeight: mediaColumn.implicitHeight + 16
-            color: vol.colBg
-            radius: 8
-            border { width: 1; color: vol.colMuted }
-
-            Column {
-                id: mediaColumn
-                anchors { fill: parent; margins: 8 }
-                spacing: 10
-
-                Row {
-                    width: parent.width
-                    spacing: 10
-
-                    Rectangle {
-                        id: artFrame
-                        width: 64
-                        height: 64
-                        radius: 6
-                        color: Qt.lighter(vol.colBg, 1.4)
-                        clip: true
-
-                        Image {
-                            id: art
-                            anchors.fill: parent
-                            source: vol.mprisPlayer?.trackArtUrl ?? ""
-                            fillMode: Image.PreserveAspectCrop
-                            asynchronous: true
-                            visible: status === Image.Ready
-                        }
-
-                        // Fallback for no art (radio streams, local files
-                        // with no embedded cover, art still loading).
-                        Text {
-                            anchors.centerIn: parent
-                            visible: !art.visible
-                            text: String.fromCodePoint(0xF075A) // md-music
-                            color: vol.colMuted
-                            font { family: vol.fontFamily; pixelSize: 26 }
-                        }
-                    }
-
-                    Column {
-                        width: parent.width - artFrame.width - parent.spacing
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: 2
-
-                        Text {
-                            width: parent.width
-                            text: vol.mprisPlayer?.trackTitle || "Nothing playing"
-                            color: vol.colFg
-                            font { family: vol.fontFamily; pixelSize: vol.fontSize - 1; bold: true }
-                            wrapMode: Text.Wrap
-                            maximumLineCount: 2
-                            elide: Text.ElideRight
-                        }
-
-                        Text {
-                            width: parent.width
-                            visible: text !== ""
-                            text: vol.mprisPlayer?.trackArtist ?? ""
-                            color: vol.colMuted
-                            font { family: vol.fontFamily; pixelSize: vol.fontSize - 3 }
-                            elide: Text.ElideRight
-                        }
-                    }
-                }
-
-                Row {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 24
-
-                    Text {
-                        readonly property bool canUse: vol.mprisPlayer?.canGoPrevious ?? false
-                        text: String.fromCodePoint(0xF04AE) // md-skip_previous
-                        color: canUse ? vol.colFg : vol.colMuted
-                        font { family: vol.fontFamily; pixelSize: vol.fontSize + 4 }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            enabled: parent.canUse
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: vol.mprisPlayer.previous()
-                        }
-                    }
-
-                    Text {
-                        readonly property bool canUse: vol.mprisPlayer?.canTogglePlaying ?? false
-                        text: (vol.mprisPlayer?.isPlaying ?? false)
-                            ? String.fromCodePoint(0xF03E4)  // md-pause
-                            : String.fromCodePoint(0xF040A)  // md-play
-                        color: canUse ? vol.colCyan : vol.colMuted
-                        font { family: vol.fontFamily; pixelSize: vol.fontSize + 6 }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            enabled: parent.canUse
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: vol.mprisPlayer.togglePlaying()
-                        }
-                    }
-
-                    Text {
-                        readonly property bool canUse: vol.mprisPlayer?.canGoNext ?? false
-                        text: String.fromCodePoint(0xF04AD) // md-skip_next
-                        color: canUse ? vol.colFg : vol.colMuted
-                        font { family: vol.fontFamily; pixelSize: vol.fontSize + 4 }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            enabled: parent.canUse
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: vol.mprisPlayer.next()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
+    // Volume control menu: fader plus, when something's available over
+    // MPRIS, a now-playing section above it. Both live in the one
+    // click-triggered popup rather than the media card popping up
+    // separately on hover.
     PopupWindow {
         id: fader
 
@@ -286,7 +120,7 @@ Item {
 
         color: "transparent"
         visible: vol.expanded
-        implicitWidth: 240
+        implicitWidth: 260
         implicitHeight: frame.implicitHeight
 
         Rectangle {
@@ -301,6 +135,128 @@ Item {
                 id: column
                 anchors { fill: parent; margins: 8 }
                 spacing: 8
+
+                // Now-playing section: only takes up space in the column
+                // when a player is actually known about.
+                Column {
+                    width: parent.width
+                    spacing: 10
+                    visible: vol.mprisPlayer !== null
+
+                    Row {
+                        width: parent.width
+                        spacing: 10
+
+                        Rectangle {
+                            id: artFrame
+                            width: 64
+                            height: 64
+                            radius: 6
+                            color: Qt.lighter(vol.colBg, 1.4)
+                            clip: true
+
+                            Image {
+                                id: art
+                                anchors.fill: parent
+                                source: vol.mprisPlayer?.trackArtUrl ?? ""
+                                fillMode: Image.PreserveAspectCrop
+                                asynchronous: true
+                                visible: status === Image.Ready
+                            }
+
+                            // Fallback for no art (radio streams, local files
+                            // with no embedded cover, art still loading).
+                            Text {
+                                anchors.centerIn: parent
+                                visible: !art.visible
+                                text: String.fromCodePoint(0xF075A) // md-music
+                                color: vol.colMuted
+                                font { family: vol.fontFamily; pixelSize: 26 }
+                            }
+                        }
+
+                        Column {
+                            width: parent.width - artFrame.width - parent.spacing
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: 2
+
+                            Text {
+                                width: parent.width
+                                text: vol.mprisPlayer?.trackTitle || "Nothing playing"
+                                color: vol.colFg
+                                font { family: vol.fontFamily; pixelSize: vol.fontSize - 1; bold: true }
+                                wrapMode: Text.Wrap
+                                maximumLineCount: 2
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                width: parent.width
+                                visible: text !== ""
+                                text: vol.mprisPlayer?.trackArtist ?? ""
+                                color: vol.colMuted
+                                font { family: vol.fontFamily; pixelSize: vol.fontSize - 3 }
+                                elide: Text.ElideRight
+                            }
+                        }
+                    }
+
+                    Row {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: 24
+
+                        Text {
+                            readonly property bool canUse: vol.mprisPlayer?.canGoPrevious ?? false
+                            text: String.fromCodePoint(0xF04AE) // md-skip_previous
+                            color: canUse ? vol.colFg : vol.colMuted
+                            font { family: vol.fontFamily; pixelSize: vol.fontSize + 4 }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                enabled: parent.canUse
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: vol.mprisPlayer.previous()
+                            }
+                        }
+
+                        Text {
+                            readonly property bool canUse: vol.mprisPlayer?.canTogglePlaying ?? false
+                            text: (vol.mprisPlayer?.isPlaying ?? false)
+                                ? String.fromCodePoint(0xF03E4)  // md-pause
+                                : String.fromCodePoint(0xF040A)  // md-play
+                            color: canUse ? vol.colCyan : vol.colMuted
+                            font { family: vol.fontFamily; pixelSize: vol.fontSize + 6 }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                enabled: parent.canUse
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: vol.mprisPlayer.togglePlaying()
+                            }
+                        }
+
+                        Text {
+                            readonly property bool canUse: vol.mprisPlayer?.canGoNext ?? false
+                            text: String.fromCodePoint(0xF04AD) // md-skip_next
+                            color: canUse ? vol.colFg : vol.colMuted
+                            font { family: vol.fontFamily; pixelSize: vol.fontSize + 4 }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                enabled: parent.canUse
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: vol.mprisPlayer.next()
+                            }
+                        }
+                    }
+                }
+
+                Rectangle {
+                    width: parent.width
+                    height: 1
+                    color: vol.colMuted
+                    visible: vol.mprisPlayer !== null
+                }
 
                 Item {
                     width: parent.width

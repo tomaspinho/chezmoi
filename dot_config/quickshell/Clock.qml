@@ -1,4 +1,5 @@
 import Quickshell
+import Quickshell.Hyprland
 import QtQuick
 
 Item {
@@ -59,28 +60,11 @@ Item {
 
     readonly property var weekdays: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
 
-    // Hover-card visibility, with a grace period so moving the pointer from
-    // the label down into the popup itself (there's a real gap between them)
-    // doesn't read as "left" and close it out from under the cursor. Same
-    // arrangement as VolumeIndicator's now-playing card.
+    // Popover visibility, click-triggered - same expand/focus-grab
+    // arrangement as VolumeIndicator's fader.
     property bool popoverVisible: false
-    readonly property bool hoverActive: labelHover.hovered || popupHover.hovered
-    onHoverActiveChanged: {
-        if (hoverActive) {
-            closeTimer.stop();
-            clock.popoverVisible = true;
-        } else {
-            closeTimer.restart();
-        }
-    }
 
     onPopoverVisibleChanged: if (!popoverVisible) viewOffset = 0
-
-    Timer {
-        id: closeTimer
-        interval: 250
-        onTriggered: clock.popoverVisible = false
-    }
 
     implicitWidth: label.implicitWidth
     implicitHeight: label.implicitHeight
@@ -93,7 +77,17 @@ Item {
         font { family: clock.fontFamily; pixelSize: clock.fontSize }
     }
 
-    HoverHandler { id: labelHover }
+    MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
+        onClicked: clock.popoverVisible = !clock.popoverVisible
+    }
+
+    HyprlandFocusGrab {
+        active: clock.popoverVisible
+        windows: [popover]
+        onCleared: clock.popoverVisible = false
+    }
 
     PopupWindow {
         id: popover
@@ -114,8 +108,6 @@ Item {
         // so deriving the frame's width from them would be a binding loop.
         implicitWidth: cellSize * 7 + 24
         implicitHeight: frame.implicitHeight
-
-        HoverHandler { id: popupHover }
 
         readonly property int cellSize: Math.round(clock.fontSize * 2.2)
 
