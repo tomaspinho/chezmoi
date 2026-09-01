@@ -9,8 +9,6 @@ Item {
 
     property color colOn: "#0db9d7"
     property color colOff: "#444b6a"
-    property string fontFamily: "JetBrainsMono Nerd Font"
-    property int fontSize: 14
 
     // process to manage, e.g. "hyprsunset"
     required property string processName
@@ -65,28 +63,35 @@ Item {
         }
     }
 
-    // catch changes made outside the bar
+    // Catch changes made outside the bar - the process dying on its own, or
+    // being started/killed from a terminal. Deliberately slow: this spawns a
+    // pgrep every tick, forever, on every instance of this widget, and the
+    // changes it exists to notice are rare and not urgent. Anything the user
+    // does *here* is already reflected within 250ms by `settle` above, so this
+    // interval only bounds how long a stale reading can survive, not how
+    // responsive a click feels.
     Timer {
-        interval: 3000
+        interval: 15000
         running: true
         repeat: true
         onTriggered: toggle.refresh()
     }
 
-    // the glyphs are narrow, so pad out the click target
-    implicitWidth: icon.implicitWidth + 8
+    implicitWidth: icon.implicitWidth
     implicitHeight: icon.implicitHeight
 
-    Text {
+    BarIcon {
         id: icon
         anchors.centerIn: parent
-        text: String.fromCodePoint(toggle.running ? toggle.glyphOn : toggle.glyphOff)
+        glyph: String.fromCodePoint(toggle.running ? toggle.glyphOn : toggle.glyphOff)
         color: toggle.running ? toggle.colOn : toggle.colOff
-        // +4: same as the wifi icon fix - both the nightlight and idle-manager
+        // +4: same as the wifi icon - both the nightlight and idle-manager
         // glyphs are drawn small/thin within their cell next to bar icons
         // like bluetooth, so they read as noticeably smaller at the same
         // pixelSize.
-        font { family: toggle.fontFamily; pixelSize: toggle.fontSize + 4 }
+        oversize: 4
+        // the glyphs are narrow, so pad out the click target
+        padding: 8
     }
 
     MouseArea {

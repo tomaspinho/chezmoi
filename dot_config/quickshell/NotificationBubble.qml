@@ -11,34 +11,37 @@ Rectangle {
 
     required property var notification
 
-    property color colBg: "#1a1b26"
-    property color colFg: "#a9b1d6"
-    property color colMuted: "#444b6a"
-    property color colBlue: "#7aa2f7"
-    property color colYellow: "#e0af68"
-    property color colRed: "#f7768e"
-    property string fontFamily: "JetBrainsMono Nerd Font"
-    property int fontSize: 14
+
+    // Every binding that reads `notification` goes through `?.`: on dismissal
+    // Notifications.qml reassigns its `popups` array, and the Repeater
+    // re-evaluates this delegate's bindings with a null modelData once before
+    // destroying it. Harmless in effect, but unguarded it logged five
+    // TypeErrors per notification.
 
     // Urgency maps to the accent stripe down the left edge, same idea as a
     // dunst/mako color scheme: normal reads as the bar's usual accent,
     // low fades into the furniture, critical demands attention.
-    readonly property color accent: notification.urgency === NotificationUrgency.Critical ? colRed
-        : notification.urgency === NotificationUrgency.Low ? colMuted
-        : colBlue
+    readonly property color accent: notification?.urgency === NotificationUrgency.Critical ? Theme.colRed
+        : notification?.urgency === NotificationUrgency.Low ? Theme.colMuted
+        : Theme.colBlue
 
     // Per the notification spec, expireTimeout -1 means "server picks the
     // default" and 0 means "never expire on its own". Critical notifications
     // default to sticky (matches dunst/mako's convention) since they're
     // usually something the user must act on, not glance past.
-    readonly property int effectiveTimeout: notification.expireTimeout > 0 ? notification.expireTimeout
-        : notification.expireTimeout === 0 ? 0
-        : notification.urgency === NotificationUrgency.Critical ? 0
-        : 5000
+    readonly property int effectiveTimeout: {
+        const timeout = notification?.expireTimeout ?? -1;
+        if (timeout > 0) return timeout;
+        if (timeout === 0) return 0;
+        return notification?.urgency === NotificationUrgency.Critical ? 0 : 5000;
+    }
 
-    readonly property string iconSource: notification.image !== "" ? notification.image
-        : notification.appIcon !== "" ? Quickshell.iconPath(notification.appIcon, "")
-        : ""
+    readonly property string iconSource: {
+        const image = notification?.image ?? "";
+        if (image !== "") return image;
+        const appIcon = notification?.appIcon ?? "";
+        return appIcon !== "" ? Quickshell.iconPath(appIcon, "") : "";
+    }
 
     // Notifications.qml owns removing this from its list, same as always,
     // but only once this has actually finished sliding out - see
@@ -64,8 +67,8 @@ Rectangle {
     }
 
     implicitHeight: content.implicitHeight + 16
-    color: colBg
-    border { width: 1; color: colMuted }
+    color: Theme.colBg
+    border { width: 1; color: Theme.colMuted }
     clip: true
 
     Rectangle {
@@ -98,18 +101,18 @@ Rectangle {
 
             Text {
                 width: parent.width
-                text: bubble.notification.summary
-                color: bubble.colFg
-                font { family: bubble.fontFamily; pixelSize: bubble.fontSize; bold: true }
+                text: bubble.notification?.summary ?? ""
+                color: Theme.colFg
+                font { family: Theme.fontFamily; pixelSize: Theme.fontSize; bold: true }
                 elide: Text.ElideRight
             }
 
             Text {
                 width: parent.width
                 visible: text !== ""
-                text: bubble.notification.body
-                color: bubble.colMuted
-                font { family: bubble.fontFamily; pixelSize: bubble.fontSize - 2 }
+                text: bubble.notification?.body ?? ""
+                color: Theme.colMuted
+                font { family: Theme.fontFamily; pixelSize: Theme.fontSize - 2 }
                 wrapMode: Text.Wrap
                 maximumLineCount: 6
                 elide: Text.ElideRight
@@ -141,8 +144,8 @@ Rectangle {
         Text {
             anchors.centerIn: parent
             text: "×"
-            color: dismissArea.containsMouse ? bubble.colRed : bubble.colMuted
-            font { family: bubble.fontFamily; pixelSize: bubble.fontSize + 2 }
+            color: dismissArea.containsMouse ? Theme.colRed : Theme.colMuted
+            font { family: Theme.fontFamily; pixelSize: Theme.fontSize + 2 }
         }
 
         MouseArea {

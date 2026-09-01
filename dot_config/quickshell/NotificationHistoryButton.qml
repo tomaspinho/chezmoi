@@ -7,11 +7,6 @@ import QtQuick
 Item {
     id: bell
 
-    property color colFg: "#a9b1d6"
-    property color colMuted: "#444b6a"
-    property color colBlue: "#7aa2f7"
-    property string fontFamily: "JetBrainsMono Nerd Font"
-    property int fontSize: 14
 
     // Whether NotificationHistoryPane is currently open, and how many
     // entries it has - both owned there, mirrored here just for the glyph.
@@ -20,18 +15,19 @@ Item {
 
     signal toggleRequested()
 
-    implicitWidth: icon.implicitWidth + 8
+    implicitWidth: icon.implicitWidth
     implicitHeight: icon.implicitHeight
 
-    Text {
+    BarIcon {
         id: icon
         anchors.centerIn: parent
         // md-bell / md-bell_outline: solid once there's something to show,
         // same idea as ProcessToggle's on/off glyph pair, doubling as a
         // "there's history" indicator without a separate unread badge.
-        text: String.fromCodePoint(bell.historyCount > 0 ? 0xF009A : 0xF009C)
-        color: bell.open ? bell.colBlue : bell.colFg
-        font { family: bell.fontFamily; pixelSize: bell.fontSize }
+        glyph: String.fromCodePoint(bell.historyCount > 0 ? 0xF009A : 0xF009C)
+        color: bell.open ? Theme.colBlue : Theme.colFg
+        // the bell is narrow, so pad out the click target
+        padding: 8
     }
 
     MouseArea {

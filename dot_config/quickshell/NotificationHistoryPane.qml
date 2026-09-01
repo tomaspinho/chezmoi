@@ -12,13 +12,6 @@ import QtQuick
 PanelWindow {
     id: root
 
-    property color colBg: "#1a1b26"
-    property color colFg: "#a9b1d6"
-    property color colMuted: "#444b6a"
-    property color colBlue: "#7aa2f7"
-    property color colRed: "#f7768e"
-    property string fontFamily: "JetBrainsMono Nerd Font"
-    property int fontSize: 14
 
     // [{ id, summary, body, appName, appIcon, image, urgency, time }, ...],
     // most recent first. Owned by Notifications.qml.
@@ -118,8 +111,8 @@ PanelWindow {
             NumberAnimation { duration: root.slideDuration; easing.type: Easing.OutCubic }
         }
 
-        color: root.colBg
-        border { width: 1; color: root.colMuted }
+        color: Theme.colBg
+        border { width: 1; color: Theme.colMuted }
 
         // Swallows clicks anywhere on the pane so they don't fall through
         // to the scrim behind it and close the pane out from under them.
@@ -157,16 +150,16 @@ PanelWindow {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 text: "Notifications"
-                color: root.colFg
-                font { family: root.fontFamily; pixelSize: root.fontSize; bold: true }
+                color: Theme.colFg
+                font { family: Theme.fontFamily; pixelSize: Theme.fontSize; bold: true }
             }
 
             Text {
                 anchors { right: parent.right; verticalCenter: parent.verticalCenter }
                 visible: root.history.length > 0
                 text: "Clear all"
-                color: clearHover.hovered ? root.colRed : root.colMuted
-                font { family: root.fontFamily; pixelSize: root.fontSize - 3 }
+                color: clearHover.hovered ? Theme.colRed : Theme.colMuted
+                font { family: Theme.fontFamily; pixelSize: Theme.fontSize - 3 }
 
                 HoverHandler { id: clearHover; cursorShape: Qt.PointingHandCursor }
                 TapHandler { onTapped: root.clearRequested() }
@@ -177,9 +170,9 @@ PanelWindow {
             anchors { left: parent.left; right: parent.right; top: header.bottom; margins: 12; topMargin: 24 }
             visible: root.history.length === 0
             text: "No notifications yet"
-            color: root.colMuted
+            color: Theme.colMuted
             horizontalAlignment: Text.AlignHCenter
-            font { family: root.fontFamily; pixelSize: root.fontSize - 2 }
+            font { family: Theme.fontFamily; pixelSize: Theme.fontSize - 2 }
         }
 
         ListView {
@@ -200,11 +193,11 @@ PanelWindow {
                 implicitHeight: entryContent.implicitHeight + 12
                 color: "transparent"
                 radius: 4
-                border { width: 1; color: root.colMuted }
+                border { width: 1; color: Theme.colMuted }
 
                 readonly property color accent:
-                    entry.modelData.urgency === NotificationUrgency.Critical ? root.colRed
-                        : root.colBlue
+                    entry.modelData.urgency === NotificationUrgency.Critical ? Theme.colRed
+                        : Theme.colBlue
 
                 // Slides fully clear of the pane (clipped by the ListView
                 // above) before actually asking Notifications.qml to drop
@@ -236,8 +229,8 @@ PanelWindow {
                     Text {
                         anchors.centerIn: parent
                         text: "×"
-                        color: dismissArea.containsMouse ? root.colRed : root.colMuted
-                        font { family: root.fontFamily; pixelSize: root.fontSize + 2 }
+                        color: dismissArea.containsMouse ? Theme.colRed : Theme.colMuted
+                        font { family: Theme.fontFamily; pixelSize: Theme.fontSize + 2 }
                     }
 
                     // MouseArea rather than Tap/HoverHandler: inside a
@@ -273,8 +266,8 @@ PanelWindow {
                             text: entry.modelData.appName !== ""
                                 ? `${entry.modelData.appName}: ${entry.modelData.summary}`
                                 : entry.modelData.summary
-                            color: root.colFg
-                            font { family: root.fontFamily; pixelSize: root.fontSize - 2; bold: true }
+                            color: Theme.colFg
+                            font { family: Theme.fontFamily; pixelSize: Theme.fontSize - 2; bold: true }
                             elide: Text.ElideRight
                         }
 
@@ -282,8 +275,8 @@ PanelWindow {
                             id: timeText
                             anchors { right: parent.right; verticalCenter: summaryText.verticalCenter }
                             text: pane.relativeTime(entry.modelData.time)
-                            color: root.colMuted
-                            font { family: root.fontFamily; pixelSize: root.fontSize - 4 }
+                            color: Theme.colMuted
+                            font { family: Theme.fontFamily; pixelSize: Theme.fontSize - 4 }
                         }
                     }
 
@@ -291,8 +284,8 @@ PanelWindow {
                         width: parent.width
                         visible: text !== ""
                         text: entry.modelData.body
-                        color: root.colMuted
-                        font { family: root.fontFamily; pixelSize: root.fontSize - 3 }
+                        color: Theme.colMuted
+                        font { family: Theme.fontFamily; pixelSize: Theme.fontSize - 3 }
                         wrapMode: Text.Wrap
                         maximumLineCount: 3
                         elide: Text.ElideRight

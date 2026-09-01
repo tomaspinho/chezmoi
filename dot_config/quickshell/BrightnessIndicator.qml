@@ -6,12 +6,6 @@ import QtQuick
 Item {
     id: br
 
-    property color colBg: "#1a1b26"
-    property color colFg: "#a9b1d6"
-    property color colMuted: "#444b6a"
-    property color colYellow: "#e0af68"
-    property string fontFamily: "JetBrainsMono Nerd Font"
-    property int fontSize: 14
 
     property bool expanded: false
 
@@ -59,11 +53,13 @@ Item {
         }
     }
 
-    // Snap to the 10% grid, then step. Reads back from brightnessctl after.
+    // One percentage point per wheel notch; reads back from brightnessctl
+    // after. Both call sites (the bar icon and the fader track) must pass the
+    // same sign for a given scroll direction, or the two surfaces of this one
+    // widget move the backlight opposite ways.
     function step(direction) {
         if (!ready) return;
-        const base = percent;
-        const next = Math.max(minPercent, Math.min(100, base + direction));
+        const next = Math.max(minPercent, Math.min(100, percent + direction));
         if (next === percent) return;
         percent = next; // optimistic; reconciled by the read below
         pending = next;
@@ -169,21 +165,24 @@ Item {
 
         Text {
             text: String.fromCodePoint(br.percent > 40 ? br.brightSun : br.dimSun)
-            color: br.ready ? br.colYellow : br.colMuted
-            font { family: br.fontFamily; pixelSize: br.fontSize }
+            color: br.ready ? Theme.colYellow : Theme.colMuted
+            font { family: Theme.fontFamily; pixelSize: Theme.fontSize }
         }
 
         Text {
             text: br.ready ? `${br.percent}%` : "--"
-            color: br.ready ? br.colFg : br.colMuted
-            font { family: br.fontFamily; pixelSize: br.fontSize }
+            color: br.ready ? Theme.colFg : Theme.colMuted
+            font { family: Theme.fontFamily; pixelSize: Theme.fontSize }
         }
     }
 
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onWheel: wheel => br.step(wheel.angleDelta.y > 0 ? -1 : 1)
+        // Positive delta brightens, matching the fader track's own wheel
+        // handler below. See VolumeIndicator's note on why the physical
+        // direction differs between the touchpad and a mouse.
+        onWheel: wheel => br.step(wheel.angleDelta.y > 0 ? 1 : -1)
         onClicked: br.expanded = !br.expanded
     }
 
@@ -193,107 +192,35 @@ Item {
         onCleared: br.expanded = false
     }
 
-    PopupWindow {
+    BarPopup {
         id: fader
-
-        anchor {
-            item: br
-            edges: Edges.Bottom
-            gravity: Edges.Bottom | Edges.Left
-            margins.top: 6
-        }
-
-        color: "transparent"
+        anchorItem: br
         visible: br.expanded
-        implicitWidth: 240
-        implicitHeight: frame.implicitHeight
+        popupWidth: 240
+        contentMargin: 10
+        // The fader is 22 high, so this reproduces the 44 the frame used to
+        // hard-code before the popup chrome was shared.
+        contentPadding: 22
 
-        Rectangle {
-            id: frame
-            anchors.fill: parent
-            implicitHeight: 44
-            color: br.colBg
-            radius: 8
-            border { width: 1; color: br.colMuted }
+        BarFader {
+            width: parent.width
+            glyph: br.percent > 40 ? br.brightSun : br.dimSun
+            accent: Theme.colYellow
+            percent: br.percent
+            ready: br.ready
+            fraction: br.fraction
 
-            Text {
-                id: faderIcon
-                anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
-                text: String.fromCodePoint(br.percent > 40 ? br.brightSun : br.dimSun)
-                color: br.colYellow
-                font { family: br.fontFamily; pixelSize: br.fontSize + 1 }
+            // `dragging` gates refresh() so a read-back can't fight the value
+            // being dragged to; it stays set from the first press until the
+            // release below.
+            onMoved: position => {
+                br.dragging = true;
+                br.setTo(position * 100);
             }
-
-            Text {
-                id: faderLabel
-                anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
-                // fixed width so the track doesn't resize as the number grows
-                width: 38
-                horizontalAlignment: Text.AlignRight
-                text: br.ready ? `${br.percent}%` : "--"
-                color: br.colFg
-                font { family: br.fontFamily; pixelSize: br.fontSize - 1 }
-            }
-
-            Item {
-                id: track
-
-                anchors {
-                    left: faderIcon.right; leftMargin: 10
-                    right: faderLabel.left; rightMargin: 8
-                    verticalCenter: parent.verticalCenter
-                }
-                height: 20
-
-                Rectangle {
-                    id: groove
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: parent.width
-                    height: 6
-                    radius: 3
-                    color: br.colMuted
-
-                    Rectangle {
-                        width: groove.width * br.fraction
-                        height: parent.height
-                        radius: parent.radius
-                        color: br.colYellow
-                    }
-                }
-
-                Rectangle {
-                    id: handle
-                    width: 13
-                    height: 13
-                    radius: width / 2
-                    color: br.colYellow
-                    anchors.verticalCenter: parent.verticalCenter
-                    x: Math.max(0, Math.min(track.width - width,
-                        br.fraction * track.width - width / 2))
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    preventStealing: true
-
-                    function apply(x) {
-                        br.setTo(Math.max(0, Math.min(1, x / width)) * 100);
-                    }
-
-                    onPressed: mouse => {
-                        br.dragging = true;
-                        apply(mouse.x);
-                    }
-                    onPositionChanged: mouse => {
-                        if (pressed) apply(mouse.x);
-                    }
-                    onReleased: {
-                        br.dragging = false;
-                        br.refresh();
-                    }
-                    onWheel: wheel => br.step(wheel.angleDelta.y > 0 ? 1 : -1)
-                }
+            onStepped: direction => br.step(direction)
+            onReleased: {
+                br.dragging = false;
+                br.refresh();
             }
         }
     }

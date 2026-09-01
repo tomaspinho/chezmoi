@@ -5,14 +5,6 @@ import QtQuick
 Row {
     id: bat
 
-    property color colFg: "#a9b1d6"
-    property color colMuted: "#444b6a"
-    property color colGreen: "#9ece6a"
-    property color colYellow: "#e0af68"
-    property color colRed: "#f7768e"
-    property string fontFamily: "JetBrainsMono Nerd Font"
-    property int fontSize: 14
-
     // UPower's aggregate battery. Like Networking, it isn't ready for a few
     // seconds after startup, so these stay live bindings.
     readonly property var device: UPower.displayDevice
@@ -33,10 +25,10 @@ Row {
     // one bolt glyph and the level is read off the percentage.
     readonly property var levels: ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
 
-    readonly property color tint: charging || full ? colGreen
-        : percent <= 15 ? colRed
-        : percent <= 30 ? colYellow
-        : colFg
+    readonly property color tint: charging || full ? Theme.colGreen
+        : percent <= 15 ? Theme.colRed
+        : percent <= 30 ? Theme.colYellow
+        : Theme.colFg
 
     // hidden on machines with no battery
     visible: available
@@ -46,13 +38,13 @@ Row {
         anchors.verticalCenter: parent.verticalCenter
         text: bat.charging ? "󰂄" : bat.levels[Math.round(bat.percent / 10)]
         color: bat.tint
-        font { family: bat.fontFamily; pixelSize: bat.fontSize }
+        font { family: Theme.fontFamily; pixelSize: Theme.fontSize }
     }
 
     Text {
         anchors.verticalCenter: parent.verticalCenter
         text: `${bat.percent}%`
         color: bat.tint
-        font { family: bat.fontFamily; pixelSize: bat.fontSize }
+        font { family: Theme.fontFamily; pixelSize: Theme.fontSize }
     }
 }

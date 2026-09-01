@@ -10,11 +10,6 @@ import QtQuick.Layouts
 Row {
     id: workspaces
 
-    property color colMuted: "#444b6a"
-    property color colCyan: "#0db9d7"
-    property color colBlue: "#7aa2f7"
-    property string fontFamily: "JetBrainsMono Nerd Font"
-    property int fontSize: 14
 
     property int count: 4
 
@@ -41,10 +36,10 @@ Row {
                     Hyprland.focusedWorkspace?.id === entry.wsId
 
                 text: entry.wsId
-                color: isActive ? workspaces.colCyan
-                    : ws ? workspaces.colBlue
-                    : workspaces.colMuted
-                font { family: workspaces.fontFamily; pixelSize: workspaces.fontSize }
+                color: isActive ? Theme.colCyan
+                    : ws ? Theme.colBlue
+                    : Theme.colMuted
+                font { family: Theme.fontFamily; pixelSize: Theme.fontSize }
 
                 MouseArea {
                     anchors.fill: parent
@@ -56,7 +51,6 @@ Row {
 
             // Rules go *between* numbers, so the last one has none.
             BarSeparator {
-                color: workspaces.colMuted
                 visible: entry.wsId < workspaces.count
             }
         }
