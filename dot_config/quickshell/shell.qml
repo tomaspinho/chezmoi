@@ -19,7 +19,7 @@ PanelWindow {
     anchors.top: true
     anchors.left: true
     anchors.right: true
-    implicitHeight: root.contentHeight + root.barPadding * 2
+    implicitHeight: root.contentHeight + root.barPadding * 2 + root.borderWidth
     color: "#1a1b26"
 
     // OnDemand rather than None: the bar never remaps (it's mapped once at
@@ -148,24 +148,47 @@ PanelWindow {
     // before the rules were added.
     property int itemGap: 4
 
-    // centered on the panel itself, not on the gap between the side items
+    // Hairline rule separating the bar from the windows below it. The panel is
+    // this much taller than the content row plus its padding, so the border is
+    // its own row of pixels rather than eating into the bottom gap.
+    property int borderWidth: 1
+
+    Rectangle {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        height: root.borderWidth
+        color: root.colMuted
+    }
+
+    // centered on the panel itself, not on the gap between the side items.
+    // Vertically it follows the content row rather than the panel, so the
+    // border's row of pixels doesn't pull it off the row's centre line.
     WindowTitle {
         id: windowTitle
-        anchors.centerIn: parent
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: statusRow.verticalCenter
         maxWidth: root.width * 0.3
         color: root.colFg
         font { family: root.fontFamily; pixelSize: root.fontSize }
     }
 
     RowLayout {
+        id: statusRow
+
         // Horizontal margins only, and an explicit content height rather than
         // filling the panel: the vertical breathing room is barPadding, so the
         // row must not claim it.
+        //
+        // Anchored to the top with barPadding rather than vertically centred:
+        // centring in a panel that now carries an odd extra pixel for the
+        // border would land the row on a half-pixel and blur the text.
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.leftMargin: 8
         anchors.rightMargin: 8
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.top: parent.top
+        anchors.topMargin: root.barPadding
         height: root.contentHeight
         spacing: root.itemGap
 
