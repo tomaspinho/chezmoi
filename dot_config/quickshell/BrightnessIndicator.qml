@@ -112,10 +112,45 @@ Item {
         }
     }
 
-    // brightnessctl has no change signal, so pick up the keyboard keys by polling
+    // brightnessctl has no change signal, but the kernel emits a udev change
+    // event on the backlight device for every write, whoever made it — the
+    // XF86MonBrightness keys, hypridle dimming, another shell instance. That
+    // makes this as live as the pipewire-backed volume widget, instead of
+    // lagging up to one poll interval behind the keyboard.
+    Process {
+        id: monitorProc
+        // udevadm line-buffers to a pipe, so no stdbuf dance is needed.
+        command: ["udevadm", "monitor", "--udev", "--subsystem-match=backlight"]
+        running: true
+        stdout: SplitParser {
+            // Skips the "monitor will print..." preamble; every event line
+            // starts with the source tag.
+            onRead: line => { if (line.startsWith("UDEV")) coalesce.restart(); }
+        }
+        // Nothing restarts a dead Process on its own, and without the delay a
+        // missing udevadm would spin here.
+        onExited: monitorRetry.restart()
+    }
+
+    // Holding a brightness key emits a burst of events; one read back is enough.
+    Timer {
+        id: coalesce
+        interval: 50
+        onTriggered: br.refresh()
+    }
+
+    Timer {
+        id: monitorRetry
+        interval: 2000
+        onTriggered: monitorProc.running = true
+    }
+
+    // Backstop for the monitor being unavailable rather than merely idle (no
+    // udevadm on the system, netlink refused), so the readout can't sit stale
+    // forever. Silent while the monitor is alive.
     Timer {
         interval: 3000
-        running: true
+        running: !monitorProc.running
         repeat: true
         onTriggered: br.refresh()
     }
