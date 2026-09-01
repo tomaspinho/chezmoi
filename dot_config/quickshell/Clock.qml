@@ -31,17 +31,25 @@ Item {
     property int viewOffset: 0
 
     // `now` changes identity every minute, so anything deriving from it
-    // directly re-evaluates every minute too. These two keys are plain ints
-    // that only change when the day (or the viewed month) actually does, which
-    // is what keeps the 42-cell grid below from being rebuilt 1440 times a day
-    // to produce the same answer.
-    readonly property int todayStamp:
-        new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
-
-    readonly property int viewMonthIndex: {
-        const d = new Date(todayStamp);
-        return d.getFullYear() * 12 + d.getMonth() + viewOffset;
+    // directly rebuilds every minute too. These two keys re-evaluate on that
+    // same tick but their *values* only change when the day (or the viewed
+    // month) actually does - and QML only notifies on a real change - which is
+    // what keeps the 42-cell grid below from being rebuilt 1440 times a day to
+    // produce the same answer.
+    //
+    // yyyymmdd, deliberately not a getTime() timestamp: QML's `int` is 32-bit,
+    // and epoch milliseconds (~1.79e12 as of writing) silently truncate to
+    // their low 32 bits. That is not a rounding error - it landed the whole
+    // calendar in January 1970.
+    function dayKey(date) {
+        return date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
     }
+
+    readonly property int todayKey: clock.dayKey(now)
+
+    // Months since year 0, so paging past a year boundary is just ±1.
+    readonly property int viewMonthIndex:
+        now.getFullYear() * 12 + now.getMonth() + viewOffset
 
     readonly property date viewDate:
         new Date(Math.floor(viewMonthIndex / 12), viewMonthIndex % 12, 1)
@@ -51,8 +59,9 @@ Item {
     // the user pages through months. Leading/trailing cells spill into the
     // neighbouring months and are drawn muted.
     //
-    // Reads viewDate and todayStamp only - deliberately not `now`, which would
-    // drag the whole rebuild back onto the every-minute tick.
+    // Reads viewDate and todayKey only - deliberately not `now`, whose
+    // identity changes every minute and would drag the whole rebuild back
+    // onto that tick.
     readonly property var cells: {
         const first = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
         // getDay() is Sunday-based; shift so Monday is 0.
@@ -64,7 +73,7 @@ Item {
                 day: d.getDate(),
                 inMonth: d.getMonth() === first.getMonth(),
                 weekend: d.getDay() === 0 || d.getDay() === 6,
-                today: d.getTime() === clock.todayStamp
+                today: clock.dayKey(d) === clock.todayKey
             });
         }
         return out;
