@@ -16,17 +16,15 @@ import QtQuick.Effects
 Item {
     id: tray
 
-    property color colFg: "#a9b1d6"
-    property int fontSize: 14
 
     // Sized to the ink height of the Nerd Font glyphs beside it rather than to
     // the font's full line box, so the icons read as the same size as the rest
     // of the bar and don't force the panel taller than the text needs.
-    readonly property int iconSize: Math.round(fontSize * 0.85)
+    readonly property int iconSize: Math.round(Theme.fontSize * 0.85)
     // Tray icons read as one group, so they sit tighter than the gap between
     // status items. They're bitmaps with no side bearing, unlike the Nerd Font
     // glyphs elsewhere on the bar, so this value lands on screen as-is.
-    readonly property int spacing: Math.round(fontSize * 0.45)
+    readonly property int spacing: Math.round(Theme.fontSize * 0.45)
 
     // Passive items are the SNI way of saying "nothing to show right now".
     readonly property var items: SystemTray.items.values.filter(
@@ -94,7 +92,7 @@ Item {
                     source: icon
                     visible: delegate.symbolic
                     colorization: 1.0
-                    colorizationColor: tray.colFg
+                    colorizationColor: Theme.colFg
                 }
 
                 MouseArea {

@@ -13,14 +13,6 @@ import QtQuick
 PanelWindow {
     id: root
 
-    property color colBg: "#1a1b26"
-    property color colFg: "#a9b1d6"
-    property color colMuted: "#444b6a"
-    property color colBlue: "#7aa2f7"
-    property color colYellow: "#e0af68"
-    property color colRed: "#f7768e"
-    property string fontFamily: "JetBrainsMono Nerd Font"
-    property int fontSize: 14
 
     // How far down to sit, so popups start below the bar rather than
     // covering it. Bound from shell.qml to the bar's own height.
@@ -135,14 +127,6 @@ PanelWindow {
 
                 width: column.width
                 notification: modelData
-                colBg: root.colBg
-                colFg: root.colFg
-                colMuted: root.colMuted
-                colBlue: root.colBlue
-                colYellow: root.colYellow
-                colRed: root.colRed
-                fontFamily: root.fontFamily
-                fontSize: root.fontSize
 
                 // The closed signal fires whichever way the notification
                 // went away - our own timeout, a click-to-dismiss, or the

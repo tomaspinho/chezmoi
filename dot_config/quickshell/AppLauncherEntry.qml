@@ -20,12 +20,6 @@ Rectangle {
     // list-wide state, not something a single row can know on its own.
     property bool expanded: false
 
-    property color colBg: "#1a1b26"
-    property color colFg: "#a9b1d6"
-    property color colMuted: "#444b6a"
-    property color colBlue: "#7aa2f7"
-    property string fontFamily: "JetBrainsMono Nerd Font"
-    property int fontSize: 14
 
     signal activate()
     signal expandToggle()
@@ -42,7 +36,7 @@ Rectangle {
 
     height: 36
     radius: 4
-    color: row.active ? Qt.lighter(row.colBg, 1.8) : "transparent"
+    color: row.active ? Qt.lighter(Theme.colBg, 1.8) : "transparent"
 
     IconImage {
         id: icon
@@ -59,8 +53,8 @@ Rectangle {
             verticalCenter: parent.verticalCenter
         }
         text: row.label
-        color: row.colFg
-        font { family: row.fontFamily; pixelSize: row.fontSize }
+        color: Theme.colFg
+        font { family: Theme.fontFamily; pixelSize: Theme.fontSize }
         elide: Text.ElideRight
     }
 
@@ -71,8 +65,8 @@ Rectangle {
         // Material "chevron-right"/"chevron-down" - collapsed points at the
         // row, expanded points down at the actions it revealed.
         text: String.fromCodePoint(row.expanded ? 0xF0140 : 0xF0142)
-        color: row.colMuted
-        font { family: row.fontFamily; pixelSize: row.fontSize - 2 }
+        color: Theme.colMuted
+        font { family: Theme.fontFamily; pixelSize: Theme.fontSize - 2 }
     }
 
     MouseArea {

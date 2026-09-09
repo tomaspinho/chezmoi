@@ -6,12 +6,6 @@ import QtQuick
 Item {
     id: pwr
 
-    property color colBg: "#1a1b26"
-    property color colFg: "#a9b1d6"
-    property color colMuted: "#444b6a"
-    property color colRed: "#f7768e"
-    property string fontFamily: "JetBrainsMono Nerd Font"
-    property int fontSize: 14
 
     property bool expanded: false
 
@@ -19,14 +13,17 @@ Item {
     // (polkit denial, hibernate with no resume device) isn't silent.
     property string error: ""
 
-    // Ordered least to most destructive. `shutdown` with no time argument is
-    // systemd's "+1", i.e. one minute out - `shutdown -c` cancels it.
+    // Ordered least to most destructive. All five act immediately: bare
+    // `shutdown` would instead schedule systemd's "+1" (a minute out,
+    // cancellable only with `shutdown -c` from a terminal), which this menu
+    // gives no indication of and no way to call off - and which made "Shut
+    // down" behave unlike "Reboot" right next to it.
     readonly property var actions: [
         { label: "Lock", glyph: 0xF033E, danger: false, command: ["loginctl", "lock-session"] },
         { label: "Suspend", glyph: 0xF04B2, danger: false, command: ["systemctl", "suspend"] },
         { label: "Hibernate", glyph: 0xF0594, danger: false, command: ["systemctl", "hibernate"] },
-        { label: "Reboot", glyph: 0xF0709, danger: true, command: ["reboot"] },
-        { label: "Shut down", glyph: 0xF0425, danger: true, command: ["shutdown"] }
+        { label: "Reboot", glyph: 0xF0709, danger: true, command: ["systemctl", "reboot"] },
+        { label: "Shut down", glyph: 0xF0425, danger: true, command: ["systemctl", "poweroff"] }
     ]
 
     function run(command) {
@@ -49,16 +46,16 @@ Item {
         }
     }
 
-    // the power glyph is narrow, so pad out the click target
-    implicitWidth: icon.implicitWidth + 8
+    implicitWidth: icon.implicitWidth
     implicitHeight: icon.implicitHeight
 
-    Text {
+    BarIcon {
         id: icon
         anchors.centerIn: parent
-        text: String.fromCodePoint(0xF0425)
-        color: pwr.expanded ? pwr.colRed : pwr.colFg
-        font { family: pwr.fontFamily; pixelSize: pwr.fontSize }
+        glyph: String.fromCodePoint(0xF0425)
+        color: pwr.expanded ? Theme.colRed : Theme.colFg
+        // the power glyph is narrow, so pad out the click target
+        padding: 8
     }
 
     MouseArea {
@@ -76,87 +73,66 @@ Item {
         onCleared: pwr.expanded = false
     }
 
-    PopupWindow {
+    BarPopup {
         id: menu
-
-        anchor {
-            item: pwr
-            edges: Edges.Bottom
-            gravity: Edges.Bottom | Edges.Left
-            margins.top: 6
-        }
-
-        color: "transparent"
+        anchorItem: pwr
         visible: pwr.expanded
-        implicitWidth: 172
-        implicitHeight: frame.implicitHeight
+        popupWidth: 172
+        contentMargin: 6
+        contentPadding: 12
+        spacing: 1
 
-        Rectangle {
-            id: frame
-            anchors.fill: parent
-            implicitHeight: column.implicitHeight + 12
-            color: pwr.colBg
-            radius: 8
-            border { width: 1; color: pwr.colMuted }
+        Repeater {
+            model: pwr.actions
 
-            Column {
-                id: column
-                anchors { fill: parent; margins: 6 }
-                spacing: 1
+            Rectangle {
+                required property var modelData
 
-                Repeater {
-                    model: pwr.actions
+                width: parent.width
+                height: 26
+                radius: 4
+                color: hover.hovered
+                    ? (modelData.danger ? Qt.darker(Theme.colRed, 3.2) : Qt.lighter(Theme.colBg, 1.8))
+                    : "transparent"
 
-                    Rectangle {
-                        required property var modelData
-
-                        width: parent.width
-                        height: 26
-                        radius: 4
-                        color: hover.hovered
-                            ? (modelData.danger ? Qt.darker(pwr.colRed, 3.2) : Qt.lighter(pwr.colBg, 1.8))
-                            : "transparent"
-
-                        Text {
-                            id: rowGlyph
-                            anchors { left: parent.left; leftMargin: 8; verticalCenter: parent.verticalCenter }
-                            text: String.fromCodePoint(modelData.glyph)
-                            color: modelData.danger ? pwr.colRed : pwr.colFg
-                            font { family: pwr.fontFamily; pixelSize: pwr.fontSize }
-                        }
-
-                        Text {
-                            anchors { left: rowGlyph.right; leftMargin: 10; verticalCenter: parent.verticalCenter }
-                            text: modelData.label
-                            color: hover.hovered && modelData.danger ? pwr.colRed : pwr.colFg
-                            font { family: pwr.fontFamily; pixelSize: pwr.fontSize - 2 }
-                        }
-
-                        HoverHandler {
-                            id: hover
-                            // Not on the TapHandler: a pointer handler's
-                            // cursorShape only applies while it is active,
-                            // which for a tap is "while held", not "while
-                            // hovered".
-                            cursorShape: Qt.PointingHandCursor
-                        }
-
-                        TapHandler {
-                            onTapped: pwr.run(modelData.command)
-                        }
-                    }
+                Text {
+                    id: rowGlyph
+                    anchors { left: parent.left; leftMargin: 8; verticalCenter: parent.verticalCenter }
+                    text: String.fromCodePoint(modelData.glyph)
+                    color: modelData.danger ? Theme.colRed : Theme.colFg
+                    font { family: Theme.fontFamily; pixelSize: Theme.fontSize }
                 }
 
                 Text {
-                    width: parent.width
-                    visible: pwr.error !== ""
-                    padding: 4
-                    text: pwr.error
-                    wrapMode: Text.Wrap
-                    color: pwr.colRed
-                    font { family: pwr.fontFamily; pixelSize: pwr.fontSize - 4 }
+                    anchors { left: rowGlyph.right; leftMargin: 10; verticalCenter: parent.verticalCenter }
+                    text: modelData.label
+                    color: hover.hovered && modelData.danger ? Theme.colRed : Theme.colFg
+                    font { family: Theme.fontFamily; pixelSize: Theme.fontSize - 2 }
+                }
+
+                HoverHandler {
+                    id: hover
+                    // Not on the TapHandler: a pointer handler's
+                    // cursorShape only applies while it is active,
+                    // which for a tap is "while held", not "while
+                    // hovered".
+                    cursorShape: Qt.PointingHandCursor
+                }
+
+                TapHandler {
+                    onTapped: pwr.run(modelData.command)
                 }
             }
+        }
+
+        Text {
+            width: parent.width
+            visible: pwr.error !== ""
+            padding: 4
+            text: pwr.error
+            wrapMode: Text.Wrap
+            color: Theme.colRed
+            font { family: Theme.fontFamily; pixelSize: Theme.fontSize - 4 }
         }
     }
 }

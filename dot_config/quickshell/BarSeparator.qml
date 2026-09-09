@@ -15,7 +15,7 @@ import QtQuick
 Item {
     id: sep
 
-    property color color: "#444b6a"
+    property color color: Theme.colMuted
     property int dotSize: 2
     property int dotGap: 2
 
