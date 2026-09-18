@@ -65,13 +65,16 @@ Item {
     // from inside the surface content (`pam is not defined` at runtime).
     // Verified live.
     //
-    // Same PAM service hyprlock used (`/etc/pam.d/hyprlock`, itself just
-    // `include login`) - kept distinct from the bare "login" service so a
-    // future edit meant only for the lock screen (e.g. enabling fprintd there
-    // but not at the login greeter) has somewhere to go.
+    // Was "hyprlock" (that PAM service, `/etc/pam.d/hyprlock`, was itself
+    // just `include login`) - switched after hyprlock's package was removed
+    // from the system (no longer needed once this replaced it) took that
+    // file with it, which silently broke authentication here: pam.start()
+    // failed with no service file to read, so responseRequired never became
+    // true and Enter appeared to do nothing. "login" is a base system file
+    // with no package dependency of its own to disappear.
     PamContext {
         id: pam
-        config: "hyprlock"
+        config: "login"
 
         onCompleted: result => {
             if (result === PamResult.Success) {

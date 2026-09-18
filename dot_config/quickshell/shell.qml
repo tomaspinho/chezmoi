@@ -24,17 +24,24 @@ PanelWindow {
     implicitHeight: Theme.contentHeight + Theme.barPadding * 2 + Theme.borderWidth
     color: Theme.colBg
 
-    // OnDemand rather than None: the bar never remaps (it's mapped once at
-    // launch and stays that way all session), so unlike
-    // NotificationHistoryPane.qml this is safe to have statically - it's
-    // specifically what makes the Escape handler below reachable at all,
-    // since clicking any bar icon (e.g. NotificationHistoryButton) grants
-    // the bar keyboard focus under OnDemand semantics. That handler exists
-    // here rather than on the pane itself because giving *that* ephemeral,
-    // repeatedly-mapped surface its own keyboard focus (even just
-    // WlrKeyboardFocus.OnDemand, even without ever forcing it) was
-    // observed to corrupt click hit-testing on the bar's own buttons.
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+    // Scoped to notificationHistory.open rather than statically OnDemand:
+    // the bar is the only surface mapped at Hyprland startup (before any
+    // app window exists), so a static OnDemand here means Hyprland's seat
+    // hands it keyboard focus by default at boot - and on this compositor,
+    // once an on-demand layer surface holds keyboard focus, newly mapped
+    // toplevel windows don't automatically steal it back (only an explicit
+    // pointer click does), which left every app unfocused, and even
+    // dispatcher-driven focus binds inert, until the first click. Gating it
+    // on the pane's own open state keeps the bar out of the focus picture
+    // whenever it isn't needed, while still granting it focus (under
+    // OnDemand semantics) the moment the pane's toggle button is clicked -
+    // which is the only time the Escape handler below actually does
+    // anything. That handler exists here rather than on the pane itself
+    // because giving *that* ephemeral, repeatedly-mapped surface its own
+    // keyboard focus (even just WlrKeyboardFocus.OnDemand, even without ever
+    // forcing it) was observed to corrupt click hit-testing on the bar's own
+    // buttons.
+    WlrLayershell.keyboardFocus: notificationHistory.open ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
     // `focus`/`Keys` aren't available directly on PanelWindow itself (it's
     // not a plain Item) - this is the focus scope that actually receives
