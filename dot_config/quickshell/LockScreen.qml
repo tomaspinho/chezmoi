@@ -190,7 +190,7 @@ Item {
 
                             Text {
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                text: String.fromCodePoint(0xF033E) + "  " + Quickshell.env("USER")
+                                text: String.fromCodePoint(0xF033E) + " " + Quickshell.env("USER")
                                 color: Theme.colBlue
                                 font { family: Theme.fontFamily; pixelSize: Theme.fontSize }
                             }
