@@ -124,6 +124,32 @@ Item {
             onVisibleChanged: if (visible) passwordField.forceActiveFocus()
             Component.onCompleted: passwordField.forceActiveFocus()
 
+            // Qt's own activeFocus can drop out from under the field on
+            // resume from suspend (DPMS/output power-cycling), even though
+            // the compositor's session-lock input grab itself stays intact -
+            // confirmed live, the surface never re-fires onVisibleChanged for
+            // this. Rather than chase the exact cause/signal, just watch for
+            // it and take focus back - cheap, and correct regardless of what
+            // knocked it out (suspend, a monitor hotplug, whatever else).
+            //
+            // `running` is a plain `true` rather than bound to
+            // `sessionLock.locked`: that binding never re-evaluated in
+            // testing (stuck at its initial value, never fired even while
+            // genuinely locked) - the same broken `lockStateChanged` notify
+            // already worked around in beginLock()/endLock() turns out to
+            // break *any* binding on `locked`, not just explicit signal
+            // handlers. Reading `sessionLock.locked` directly inside
+            // onTriggered instead is unaffected, since that's a plain
+            // property read, not a change-notification. Confirmed live
+            // (suspend/resume, kernel-log-verified) that this successfully
+            // catches and recovers the dropped focus within one tick.
+            Timer {
+                interval: 500
+                running: true
+                repeat: true
+                onTriggered: if (sessionLock.locked && !passwordField.activeFocus) passwordField.forceActiveFocus()
+            }
+
             Rectangle {
                 anchors.fill: parent
                 color: Theme.colBg
