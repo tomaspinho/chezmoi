@@ -19,7 +19,6 @@ packages:
     # Dependencies for hyprland desktop environment
     - hyprland
     - hypridle
-    - hyprlock
     - hyprpaper
     - hyprpolkitagent
     - hyprsunset # Change screen color temperature depending on time of day
