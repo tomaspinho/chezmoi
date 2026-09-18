@@ -69,6 +69,12 @@ PanelWindow {
         onDismissRequested: id => notifications.removeHistoryEntry(id)
     }
 
+    // Also its own top-level surface (see LockScreen.qml), controlled purely
+    // over IPC (`qs ipc call lock lock`) rather than a bar widget - hypridle
+    // and PowerMenu's "Lock" both already drive locking via `loginctl
+    // lock-session`, which this hooks into at the hypridle.conf end.
+    LockScreen {}
+
     Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
