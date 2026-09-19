@@ -31,6 +31,19 @@ Item {
     property bool unlocking: false
     property string errorMessage: ""
 
+    // Fingerprint state, kept apart from `errorMessage` above: the two stacks
+    // run at the same time and say unrelated things, so "Incorrect password"
+    // and "Place your finger on ..." need to be able to sit on screen
+    // together without overwriting each other.
+    //
+    // `fingerprintMessage` is whatever pam_fprintd last said, verbatim, until
+    // we stop restarting it and replace it with a note of our own. Empty
+    // means the reader has nothing to report yet and the line stays hidden.
+    property string fingerprintMessage: ""
+    property bool fingerprintAvailable: true
+    property int fingerprintRestarts: 0
+    readonly property int maxFingerprintRestarts: 10
+
     // The PAM conversation is driven from here rather than from
     // WlSessionLock's own `onLockStateChanged` - that signal is documented
     // as the notify for `locked` (see quickshell's qmltypes) but was
@@ -44,13 +57,40 @@ Item {
     function beginLock() {
         root.unlocking = false;
         root.errorMessage = "";
+        root.fingerprintMessage = "";
+        root.fingerprintAvailable = true;
+        root.fingerprintRestarts = 0;
         sessionLock.locked = true;
         pam.start();
+        fingerprint.start();
     }
 
     function endLock() {
         sessionLock.locked = false;
         pam.abort();
+        fingerprint.abort();
+        fingerprintRetry.stop();
+    }
+
+    // Each pam_fprintd run ends after max-tries non-matching touches (see
+    // pam/quickshell-fingerprint), so the reader has to be restarted to stay
+    // live for the rest of the lock - the same one-run-per-attempt shape the
+    // password context already deals with. Capped rather than endless: a
+    // reader that fails instantly (device claimed by something else, unplugged
+    // mid-lock) would otherwise spin on fprintd for as long as the screen is
+    // locked. Past the cap the reader goes quiet and the password field, which
+    // none of this touches, is still there.
+    function retryFingerprint() {
+        if (!sessionLock.locked || !root.fingerprintAvailable) return;
+
+        if (root.fingerprintRestarts >= root.maxFingerprintRestarts) {
+            root.fingerprintAvailable = false;
+            root.fingerprintMessage = "Too many fingerprint attempts - use your password";
+            return;
+        }
+
+        root.fingerprintRestarts++;
+        fingerprintRetry.restart();
     }
 
     SystemClock {
@@ -99,6 +139,65 @@ Item {
             root.errorMessage = PamError.toString(error);
             if (sessionLock.locked) Qt.callLater(() => pam.start());
         }
+    }
+
+    // The second, parallel authentication stack. Two PamContexts rather than
+    // one stack containing both modules because PAM is a serialised
+    // conversation - pam_fprintd(8) spells this out under LIMITATIONS and says
+    // the application is the one that has to run the two separately, which is
+    // how gdm does it too. Sharing a stack would mean the password field sat
+    // dead until the reader gave up.
+    //
+    // Whichever stack succeeds first calls endLock(), which aborts the other.
+    PamContext {
+        id: fingerprint
+        config: "quickshell-fingerprint"
+        // Not /etc/pam.d - this one ships with the shell, see the header of
+        // pam/quickshell-fingerprint for why that's acceptable here and what
+        // would change if the IPC unlock ever goes away.
+        configDirectory: Quickshell.shellPath("pam")
+
+        // pam_fprintd talks to the user purely through PAM_TEXT_INFO /
+        // PAM_ERROR_MSG ("Place your right index finger on ...", "Failed to
+        // match fingerprint") and never asks for anything back, so
+        // responseRequired never becomes true here and this context has no
+        // input widget of its own - the message line below is its entire UI.
+        onPamMessage: root.fingerprintMessage = fingerprint.message
+
+        onCompleted: result => {
+            if (result === PamResult.Success) {
+                root.endLock();
+                return;
+            }
+
+            root.retryFingerprint();
+        }
+
+        onError: error => {
+            // StartFailed means the stack never got off the ground (config
+            // file missing, pam_fprintd.so not installed) - that is not going
+            // to come good on a retry, so don't spend the restart budget on
+            // it. Anything else goes through the capped retry path.
+            if (error === PamError.StartFailed) {
+                root.fingerprintAvailable = false;
+                root.fingerprintMessage = "";
+                return;
+            }
+
+            root.retryFingerprint();
+        }
+    }
+
+    // Deferred rather than calling fingerprint.start() straight out of the
+    // handler above, for the same reentrancy reason the password context uses
+    // Qt.callLater - the signal of the object being restarted is still on the
+    // stack. The delay does double duty as the floor on how fast a reader that
+    // fails immediately can be retried.
+    Timer {
+        id: fingerprintRetry
+        interval: 1000
+        repeat: false
+        onTriggered: if (sessionLock.locked && root.fingerprintAvailable) fingerprint.start()
     }
 
     WlSessionLock {
@@ -282,6 +381,23 @@ Item {
                                 color: Theme.colRed
                                 font { family: Theme.fontFamily; pixelSize: Theme.fontSize - 3 }
                                 visible: text !== ""
+                            }
+
+                            // pam_fprintd's own words, prefixed with the
+                            // reader icon. Muted while the reader is live,
+                            // since "Place your finger on ..." is an
+                            // invitation and not a problem; yellow rather than
+                            // red once it has given up, to keep red meaning
+                            // "the password you typed was wrong".
+                            Text {
+                                width: parent.width
+                                horizontalAlignment: Text.AlignHCenter
+                                wrapMode: Text.Wrap
+                                // nf-md-fingerprint
+                                text: String.fromCodePoint(0xF0237) + "  " + root.fingerprintMessage
+                                color: root.fingerprintAvailable ? Theme.colMuted : Theme.colYellow
+                                font { family: Theme.fontFamily; pixelSize: Theme.fontSize - 3 }
+                                visible: root.fingerprintMessage !== ""
                             }
                         }
                     }
