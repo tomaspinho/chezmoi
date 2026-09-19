@@ -14,6 +14,7 @@ packages:
     - ripgrep
     - tmux
     - ttf-hack-nerd
+    - ttf-jetbrains-mono-nerd
     - zsh
 
     # Dependencies for hyprland desktop environment
