@@ -44,6 +44,25 @@ Item {
     property int fingerprintRestarts: 0
     readonly property int maxFingerprintRestarts: 10
 
+    // Has pam_fprintd said anything at all since this lock began? It only
+    // ever talks through PAM_TEXT_INFO/PAM_ERROR_MSG, so a single message is
+    // proof that the module loaded and found a reader to drive. Silence plus
+    // an error means there was never anything there - see
+    // handleFingerprintError() for what that's used for.
+    property bool fingerprintSpoke: false
+    property int fingerprintSilentErrors: 0
+    readonly property int maxSilentErrors: 2
+
+    // A PAM run that ends in an *error* reports itself twice: `onError`
+    // (TryAuthFailed) fires, and then `onCompleted` (PamResult.Error) fires
+    // for that same single run. Confirmed live against a stack whose module
+    // was missing. A plain wrong-answer failure fires `onCompleted` alone,
+    // which is why this never showed up on the password path in normal use.
+    // These flags let whichever signal arrives first own the run, so one run
+    // costs one retry and one restart-budget increment rather than two.
+    property bool fingerprintRunHandled: false
+    property bool passwordRunHandled: false
+
     // The PAM conversation is driven from here rather than from
     // WlSessionLock's own `onLockStateChanged` - that signal is documented
     // as the notify for `locked` (see quickshell's qmltypes) but was
@@ -60,8 +79,25 @@ Item {
         root.fingerprintMessage = "";
         root.fingerprintAvailable = true;
         root.fingerprintRestarts = 0;
+        root.fingerprintSpoke = false;
+        root.fingerprintSilentErrors = 0;
         sessionLock.locked = true;
+        root.startPassword();
+        root.startFingerprint();
+    }
+
+    // Both stacks are started through these rather than calling
+    // PamContext.start() directly, so that arming the run guard can't be
+    // forgotten at one of the several places a run begins (lock, retry timer,
+    // post-attempt restart). A run with a stale guard would silently swallow
+    // its own result.
+    function startPassword() {
+        root.passwordRunHandled = false;
         pam.start();
+    }
+
+    function startFingerprint() {
+        root.fingerprintRunHandled = false;
         fingerprint.start();
     }
 
@@ -93,6 +129,35 @@ Item {
         fingerprintRetry.restart();
     }
 
+    // Where a run that ended in PamError/PamResult.Error lands. An error is
+    // not a finger that didn't match - a non-matching touch arrives as
+    // Failed/MaxTries, after pam_fprintd has narrated it. An error means the
+    // module never got anywhere, and if it has also never said a word since
+    // the lock began there is nothing here to talk to: no reader on this
+    // machine, or no pam_fprintd.so installed to drive one.
+    //
+    // That case used to fall into the retry path and burn the whole restart
+    // budget one second at a time, ending on "Too many fingerprint attempts",
+    // which is a plain lie on a machine that has no sensor and recorded no
+    // attempts. Go quiet with no message instead - the password field, which
+    // none of this touches, is the entire UI that machine ever needed.
+    //
+    // Not on the first error, though: a reader that is merely busy (fprintd
+    // still being activated over D-Bus) can error once before it comes good,
+    // and giving up there would cost a working sensor the rest of the lock.
+    function handleFingerprintError() {
+        if (!root.fingerprintSpoke) {
+            root.fingerprintSilentErrors++;
+            if (root.fingerprintSilentErrors >= root.maxSilentErrors) {
+                root.fingerprintAvailable = false;
+                root.fingerprintMessage = "";
+                return;
+            }
+        }
+
+        root.retryFingerprint();
+    }
+
     SystemClock {
         id: clock
         precision: SystemClock.Minutes
@@ -117,6 +182,9 @@ Item {
         config: "login"
 
         onCompleted: result => {
+            if (root.passwordRunHandled) return;
+            root.passwordRunHandled = true;
+
             if (result === PamResult.Success) {
                 root.endLock();
                 return;
@@ -125,19 +193,30 @@ Item {
             root.unlocking = false;
             root.errorMessage = result === PamResult.MaxTries
                 ? "Too many attempts"
-                : "Incorrect password";
+                : result === PamResult.Error
+                    ? "Authentication error"
+                    : "Incorrect password";
 
             // Each PamContext run is one attempt; start a fresh one so the
             // field is live again for the next try. Deferred rather than
             // called straight from this handler, since it's a reentrant call
             // back into the object whose signal is still being handled.
-            if (sessionLock.locked) Qt.callLater(() => pam.start());
+            if (sessionLock.locked) Qt.callLater(() => root.startPassword());
         }
 
+        // Only ever reached for a broken stack, never for a wrong password -
+        // and on that path `onCompleted` fires straight afterwards with
+        // PamResult.Error, so without the guard above this message was
+        // immediately overwritten with "Incorrect password" (which the stack
+        // never actually said) and a second run was started on top of the
+        // first.
         onError: error => {
+            if (root.passwordRunHandled) return;
+            root.passwordRunHandled = true;
+
             root.unlocking = false;
             root.errorMessage = PamError.toString(error);
-            if (sessionLock.locked) Qt.callLater(() => pam.start());
+            if (sessionLock.locked) Qt.callLater(() => root.startPassword());
         }
     }
 
@@ -162,11 +241,25 @@ Item {
         // match fingerprint") and never asks for anything back, so
         // responseRequired never becomes true here and this context has no
         // input widget of its own - the message line below is its entire UI.
-        onPamMessage: root.fingerprintMessage = fingerprint.message
+        onPamMessage: {
+            root.fingerprintSpoke = true;
+            root.fingerprintMessage = fingerprint.message;
+        }
 
         onCompleted: result => {
+            if (root.fingerprintRunHandled) return;
+            root.fingerprintRunHandled = true;
+
             if (result === PamResult.Success) {
                 root.endLock();
+                return;
+            }
+
+            // Error is the module failing, not a finger failing - a touch
+            // that didn't match comes back as Failed/MaxTries and belongs in
+            // the capped retry path below.
+            if (result === PamResult.Error) {
+                root.handleFingerprintError();
                 return;
             }
 
@@ -174,17 +267,25 @@ Item {
         }
 
         onError: error => {
-            // StartFailed means the stack never got off the ground (config
-            // file missing, pam_fprintd.so not installed) - that is not going
-            // to come good on a retry, so don't spend the restart budget on
-            // it. Anything else goes through the capped retry path.
+            if (root.fingerprintRunHandled) return;
+            root.fingerprintRunHandled = true;
+
+            // StartFailed is pam_start() itself refusing - which, measured
+            // against libpam, means only that the config file is missing.
+            // It does *not* cover a missing pam_fprintd.so, contrary to what
+            // this once assumed: pam_start() succeeds for a stack whose
+            // module isn't installed (modules aren't loaded until
+            // pam_authenticate), and the failure arrives later as
+            // PAM_MODULE_UNKNOWN, i.e. TryAuthFailed. So the no-fprintd
+            // machine never took this branch at all - handleFingerprintError()
+            // is what actually catches it now.
             if (error === PamError.StartFailed) {
                 root.fingerprintAvailable = false;
                 root.fingerprintMessage = "";
                 return;
             }
 
-            root.retryFingerprint();
+            root.handleFingerprintError();
         }
     }
 
@@ -197,7 +298,7 @@ Item {
         id: fingerprintRetry
         interval: 1000
         repeat: false
-        onTriggered: if (sessionLock.locked && root.fingerprintAvailable) fingerprint.start()
+        onTriggered: if (sessionLock.locked && root.fingerprintAvailable) root.startFingerprint()
     }
 
     WlSessionLock {
