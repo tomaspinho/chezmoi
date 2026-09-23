@@ -338,6 +338,17 @@ Item {
                                     id: passwordField
                                     anchors { left: parent.left; leftMargin: 10; right: revealIcon.left; rightMargin: 8; verticalCenter: parent.verticalCenter }
                                     verticalAlignment: TextInput.AlignVCenter
+                                    // TextInput already scrolls horizontally to
+                                    // keep the cursor in view once the text is
+                                    // wider than the field (autoScroll), but it
+                                    // still *paints* the part that scrolled out
+                                    // of the anchored width unless it clips -
+                                    // which looked like the password spilling
+                                    // over the box's borders. With this it
+                                    // behaves like an <input> on the web: the
+                                    // contents slide under the edges and are cut
+                                    // off there.
+                                    clip: true
                                     color: Theme.colFg
                                     font { family: Theme.fontFamily; pixelSize: Theme.fontSize }
                                     // PAM sets responseVisible for prompts that
