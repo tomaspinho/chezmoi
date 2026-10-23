@@ -24,6 +24,16 @@ Item {
         precision: SystemClock.Minutes
     }
 
+    // Toggling `enabled` is what makes SystemClock re-read the wall clock and
+    // reschedule; see SleepMonitor.qml for why that's needed after a resume.
+    Connections {
+        target: SleepMonitor
+        function onResumed() {
+            systemClock.enabled = false;
+            systemClock.enabled = true;
+        }
+    }
+
     readonly property date now: systemClock.date
 
     // Months away from the current one, driven by the popover's arrows. Reset

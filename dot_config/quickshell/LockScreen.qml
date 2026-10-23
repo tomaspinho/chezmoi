@@ -163,6 +163,16 @@ Item {
         precision: SystemClock.Minutes
     }
 
+    // Resync after a resume (the lock is usually up across a suspend); see
+    // SleepMonitor.qml.
+    Connections {
+        target: SleepMonitor
+        function onResumed() {
+            clock.enabled = false;
+            clock.enabled = true;
+        }
+    }
+
     // A sibling of WlSessionLock rather than nested inside it: WlSessionLock's
     // only child slot is its default `surface` property (a single Component),
     // so a second child declared alongside WlSessionLockSurface there doesn't
