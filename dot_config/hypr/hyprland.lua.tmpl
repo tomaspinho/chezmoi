@@ -291,5 +291,5 @@ hl.bind(mainMod .. " + up",    hl.dsp.window.resize({ x = 0,   y = -10, relative
 hl.bind(mainMod .. " + down",  hl.dsp.window.resize({ x = 0,   y = 10,  relative = true }), { repeating = true })
 
 -- Global shortcuts --
--- bind "`" key to Discord push-to-talk
-hl.bind("code:49", hl.dsp.global("discord:discord-push-to-talk"))
+--- bind forward mouse key to Discord push-to-talk
+-hl.bind("mouse:276", hl.dsp.global("discord:discord-push-to-talk"))
